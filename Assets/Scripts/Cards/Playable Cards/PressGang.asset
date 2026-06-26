@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6badfc98f6be0448d394ffdd4054ab, type: 3}
+  m_Name: PressGang
+  m_EditorClassIdentifier: 
+  cardName: Press Gang
+  context: 0
+  targetType: 4
+  cardType: 1
+  actions:
+  - rid: 5922433978502479872
+  turnDuration: -1
+  existsUntilDestroyed: 0
+  id: 
+  shopIcon: {fileID: 21300000, guid: 70e78d27446844143a9757db80cec0de, type: 3}
+  cost: 30
+  multiplier: 3
+  effectAmount: 0
+  rank: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 5922433978502479872
+      type: {class: CA_ChangeTileTeam, ns: , asm: Assembly-CSharp}
+      data:
+        duration: -1
+        existsUntilDestroyed: 0
+        effectAmount: 0

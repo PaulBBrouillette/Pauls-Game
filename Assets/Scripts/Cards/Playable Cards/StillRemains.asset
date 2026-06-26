@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6badfc98f6be0448d394ffdd4054ab, type: 3}
+  m_Name: StillRemains
+  m_EditorClassIdentifier: 
+  cardName: 
+  context: 0
+  targetType: 0
+  cardType: 0
+  actions:
+  - rid: 5922434184543469569
+  turnDuration: -1
+  existsUntilDestroyed: 1
+  id: 
+  shopIcon: {fileID: 21300000, guid: 6d308197203605946bcba015bd762a42, type: 3}
+  cost: 0
+  multiplier: 2.5
+  effectAmount: 0
+  rank: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5922434184543469569
+      type: {class: CA_StillRemains, ns: , asm: Assembly-CSharp}
+      data:
+        duration: 0
+        existsUntilDestroyed: 0
+        effectAmount: 0
