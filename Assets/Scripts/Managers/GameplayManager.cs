@@ -62,6 +62,8 @@ public class GameplayManager : MonoBehaviour {
 
     // Utility 
     System.Random rand; // Shared random object
+    Tile firstSelectedTile; // In the case of a multi select card, track the first tile here
+    Piece firstSelectedPiece; // Same as firstSelectedTile
 
     // State Management
     public List<GameObject> players = new List<GameObject>();
@@ -254,12 +256,74 @@ public class GameplayManager : MonoBehaviour {
                             }
                             break;
 
-                        case TargetType.FriendlyEnemyTile:
-
+                        case TargetType.MultiSelectTile:
+                            if (Physics.Raycast(ray, out RaycastHit hit4)) {
+                                if (hit4.collider.CompareTag("Tile")) {
+                                    Tile t = hit4.collider.GetComponent<Tile>();
+                                    if (t != null) {
+                                        firstSelectedTile = t;
+                                        SetPhase(TurnPhase.ChooseSecondCardTarget);
+                                    }
+                                }
+                            }
+                            break;
+                        case TargetType.MultiSelectPiece:
+                            if (Physics.Raycast(ray, out RaycastHit hit5)) {
+                                if (hit5.collider.CompareTag("Piece")) {
+                                    Piece p = hit5.collider.GetComponent<Piece>();
+                                    if (p != null) {
+                                        firstSelectedPiece = p;
+                                        SetPhase(TurnPhase.ChooseSecondCardTarget);
+                                    }
+                                }
+                            }
                             break;
                     }
-                    
                 }
+                break;
+
+            // Select the second card target
+            case TurnPhase.ChooseSecondCardTarget:
+                if (InputManager.Controls.Player.Unselect.triggered) {
+                    SetPhase(TurnPhase.Wait);
+                }
+                if (InputManager.Controls.Player.Select.triggered) {
+                    TargetType type = selectedCardToBuy.targetType;
+                    Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                    switch (type) {
+                        case TargetType.MultiSelectTile:
+                            if (Physics.Raycast(ray, out RaycastHit hit)) {
+                                if (hit.collider.CompareTag("Tile")) {
+                                    Tile t = hit.collider.GetComponent<Tile>();
+                                    if (t != null && t != firstSelectedTile) {
+                                        if (selectedCardToBuy.cardType == CardType.Single) {
+                                            selectedCardToBuy.PlayCard(currentPlayerScript, null, null, null, firstSelectedTile, t);
+                                            firstSelectedTile = null;
+                                            RemoveCardFromStock();
+                                            SetPhase(TurnPhase.Wait);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case TargetType.MultiSelectPiece:
+                            if (Physics.Raycast(ray, out RaycastHit hit2)) {
+                                if (hit2.collider.CompareTag("Piece")) {
+                                    Piece p = hit2.collider.GetComponent<Piece>();
+                                    if (p != null && p != firstSelectedPiece) {
+                                        if (selectedCardToBuy.cardType == CardType.Single) {
+                                            selectedCardToBuy.PlayCard(currentPlayerScript, null, firstSelectedPiece, p, null, null);
+                                            firstSelectedTile = null;
+                                            RemoveCardFromStock();
+                                            SetPhase(TurnPhase.Wait);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+
                 break;
 
             case TurnPhase.MovePiece:

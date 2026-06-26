@@ -8,6 +8,9 @@ public enum TurnPhase {
     Buy,
     PlacePiece, // After buying, pieces go to the stock. This is for placing those pieces
     ChooseCardTarget, // When waiting and then selecting a card, this is for choosing targets
+    ChooseSecondCardTarget, // For multi select cards
+    ChoosePlayer, // When selecting a card that targets players
+    AwaitYesNoSelection, // When selecting a card that targets yourself to prevent misclicks since every other card requires you to drag the mouse
     Attack,
     BattleStart,
     BattleEnd,

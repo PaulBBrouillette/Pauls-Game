@@ -8,6 +8,14 @@ public class StatusHost : MonoBehaviour {
         activeEffects.Add(newEffect);
     }
 
+    public void AddMultipleEffects(List<StatusEffect> list) {
+        foreach (var effect in list) {
+            if (effect != null) {
+                AddEffect(effect);
+            }
+        }
+    }
+
     public void ProcessTurn() {
         // Remove effects that hit 0 turns
         activeEffects.RemoveAll(e => e.Tick());
@@ -20,5 +28,9 @@ public class StatusHost : MonoBehaviour {
     // Manually remove an effect from the list as opposed to waiting for the duration to tick down
     public void RemoveEffect(StatusEffect effect) {
         activeEffects.Remove(effect);
+    }
+
+    public void RemoveAllEffects() {
+        activeEffects.Clear();
     }
 }
