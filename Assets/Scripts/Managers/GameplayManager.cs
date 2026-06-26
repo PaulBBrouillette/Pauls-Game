@@ -7,8 +7,15 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Linq;
 
+/// <summary>
+/// Where a piece is located on a tile, i.e. of the 4 available spots on a tile,  
+/// </summary>
 public enum Direction { Top, Bottom, Left, Right, None }
 
+/// <summary>
+/// Manages main gameplay, including initializing players, placing pieces, playing cards, and allowing players to play in order. Calls
+/// other managers for modularity, such as allowing the GridManager to handle generating the board
+/// </summary>
 public class GameplayManager : MonoBehaviour {
     public static GameplayManager Instance;
 
@@ -25,8 +32,6 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private Button shopButton;
     [SerializeField] private Button capitulateButton;
     [SerializeField] private Button backFromShopButton;
-    [SerializeField] private Image attackerIcon;
-    [SerializeField] private Image defenderIcon;
     [SerializeField] private Transform playerPieceStockContent; // Player's stock of pieces
     [SerializeField] private Transform playerCardStockContent; // Player's stock of cards
     [SerializeField] private GameObject cardStockObject;
@@ -36,8 +41,8 @@ public class GameplayManager : MonoBehaviour {
     public Player currentPlayerScript;
 
     [Header("Settings")]
-    public int playerCount;
-    public float pieceOffset = 0.25f;
+    public int playerCount; // Number of 
+    public float pieceOffset = 0.25f; // Distance a piece is offset from the tile edge, .25f for now
 
     [Header("Shop Settings")]
     public List<PieceData> availablePieces;
@@ -49,8 +54,14 @@ public class GameplayManager : MonoBehaviour {
     private int selectedCardIndex;
 
     [Header("Combat References")]
-    private Piece attackerPiece;
-    private Piece defenderPiece;
+    private Piece attackerPiece; // Ref to attacking piece
+    private Piece defenderPiece; // Ref to defending piece
+    private bool isSneakAttack = false; // Is the current attack a sneak attack?
+    [SerializeField] private Image attackerIcon; // attackerPiece's icon
+    [SerializeField] private Image defenderIcon; // defenderPiece's icon
+
+    // Utility 
+    System.Random rand; // Shared random object
 
     // State Management
     public List<GameObject> players = new List<GameObject>();
@@ -64,9 +75,9 @@ public class GameplayManager : MonoBehaviour {
     private HashSet<Tile> touchingTiles; // Friendly tiles touching a specified tile
     private int initAvgTiles; // The starting average number of tiles per player at game start
     public int basePrice; // Base price for scaling item prices
-    private bool roundOneOver = false;
+    private bool roundOneOver = false; // Tracks if the first round is over
 
-    // A simple struct to hold what the mouse is currently looking at
+    // Holds data about what the mouse is currently looking at
     private struct PointerInfo {
         public Tile tile;
         public Direction direction;
@@ -75,14 +86,12 @@ public class GameplayManager : MonoBehaviour {
         public bool isOccupied;
         public Vector3 worldPoint;
     }
-
-    private PointerInfo tempAttackInfo;
-    private bool isSneakAttack = false;
+    PointerInfo info;
 
     void Awake() => Instance = this;
 
     void Start() {
-
+        rand = new System.Random();
         // Should never be null, but for testing purposes 
         // just do sum slight like this
         if (BetweenScene.Instance == null) {
@@ -116,8 +125,11 @@ public class GameplayManager : MonoBehaviour {
 
     #region Phase Handling
 
+    /// <summary>
+    /// Handle the current phase
+    /// </summary>
     private void HandleCurrentPhase() {
-        PointerInfo info = GetPointerInfo();
+        
         switch (phase) {
             case TurnPhase.RoundOneStart:
                 Debug.Log($"{currentPlayerGO.name} Start!");
@@ -150,6 +162,7 @@ public class GameplayManager : MonoBehaviour {
                 break;
 
             case TurnPhase.Wait:
+                info = GetPointerInfo();
                 activeGhost.SetActive(false);
 
                 // Transition to Move if we grab a piece
@@ -165,6 +178,7 @@ public class GameplayManager : MonoBehaviour {
                 break;
 
             case TurnPhase.PlacePiece:
+                info = GetPointerInfo();
                 HandlePlacementGhost(info);
                 // Right click to cancel
                 if (InputManager.Controls.Player.Unselect.triggered) {
@@ -176,6 +190,7 @@ public class GameplayManager : MonoBehaviour {
                 break;
 
             case TurnPhase.ChooseCardTarget:
+                info = GetPointerInfo();
                 // Right click to cancel
                 if (InputManager.Controls.Player.Unselect.triggered) {
                     SetPhase(TurnPhase.Wait);
@@ -208,10 +223,6 @@ public class GameplayManager : MonoBehaviour {
                                         selectedCardToBuy.PlayCard(currentPlayerScript, null, p, null, null, null);
                                         RemoveCardFromStock();
                                         SetPhase(TurnPhase.Wait);
-
-                                        // Special cases:
-                                        // Erase: 
-
                                     }
                                 }
                             }
@@ -252,7 +263,7 @@ public class GameplayManager : MonoBehaviour {
                 break;
 
             case TurnPhase.MovePiece:
-
+                info = GetPointerInfo();
                 UpdatePieceDrag(info);
                 if (InputManager.Controls.Player.Select.triggered) { // Press again to place
                     FinishPieceMove(info);
@@ -293,12 +304,15 @@ public class GameplayManager : MonoBehaviour {
                 SetPhase(TurnPhase.Start);
                 break;
 
+            // After a tile is captured, run a check for every player's tile count. If a player has no tiles, they are removed from the game and can't play.
+            // If only one player remains, they win
             case TurnPhase.AfterCaptureCheck:
                 for (int i = players.Count - 1; i >= 0; i--) {
                     Player p = players[i].GetComponent<Player>();
                     if (p != null) {
                         if (p.ownedTiles <= 0) {
                             players.Remove(players[i]);
+                            playerCount--;
                             Debug.Log("Removing " + p.name + " because they have no tiles left");
                         }
                     }
@@ -323,6 +337,9 @@ public class GameplayManager : MonoBehaviour {
 
     #region Piece Placement & Movement
 
+    /// <summary>
+    /// After the player picks a piece from their stock, allow them to place it
+    /// </summary>
     public void ChoosePieceToPlace(PieceData p, int index) {
         CloseCardStock();
         ClosePieceStock();
@@ -331,6 +348,9 @@ public class GameplayManager : MonoBehaviour {
         SetPhase(TurnPhase.PlacePiece);
     }
 
+    /// <summary>
+    /// After the player picks a card from their stock, allow them to play it
+    /// </summary>
     public void ChooseCardToPlace(CardData p, int index) {
         CloseCardStock();
         ClosePieceStock();
@@ -340,6 +360,11 @@ public class GameplayManager : MonoBehaviour {
         SetPhase(TurnPhase.ChooseCardTarget);
     }
 
+    /// <summary>
+    /// Place a NEW piece from player stock. Intializes a GameObject with the piece's stats and removes
+    /// the piece from their stock. For moving a new piece to a new location, see <see cref="CanMoveTo"/>
+    /// and <see cref="MovePiece"/>
+    /// </summary>
     void PlacePiece(Tile tile, Direction direction, bool isThisTileA, TileSide side) {
         Vector3 spawnPos = DetermineOffset(tile, direction);
 
@@ -380,6 +405,10 @@ public class GameplayManager : MonoBehaviour {
         
     }
 
+    /// <summary>
+    /// When placing a new piece from stock, the "ghost" icon (transparent game piece) will follow the mouse and act as a 
+    /// visual guide to the player as to where the piece will be placed
+    /// </summary>
     private void HandlePlacementGhost(PointerInfo info) {
         if (info.tile != null && info.tile.team == currentPlayerScript.getTeam() && !info.isOccupied) {
             activeGhost.transform.position = GetWorldPosition(info.tile, info.direction);
@@ -390,6 +419,11 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Try to grab an existing piece in order to move it. Can only grab a piece if it's the player's turn
+    /// and the current phase allows it
+    /// </summary>
+    /// <returns>Returns true if the piece can be grabbed and move, false otherwise</returns>
     private bool TryGrabPiece(PointerInfo info) {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         if (Physics.Raycast(ray, out RaycastHit hit)) {
@@ -407,7 +441,9 @@ public class GameplayManager : MonoBehaviour {
         return false;
     }
 
-    // Move the piece to where the mouse is dragging it
+    /// <summary>
+    /// Make the piece follow the mouse when it is being moved. If the mouse goes off the board, snap it back to its original position
+    /// </summary>
     private void UpdatePieceDrag(PointerInfo info) {
         if (currentMovingPiece != null) {
             if (info.tile == null) {
@@ -418,7 +454,10 @@ public class GameplayManager : MonoBehaviour {
             }
         }
     }
-
+    /// <summary>
+    /// When moving a piece and selecting a new place for it, call <see cref="CanMoveTo"/> to 
+    /// determine if the piece is allowed to move there, and if so, call <see cref="MovePiece"/> to move it
+    /// </summary>
     private void FinishPieceMove(PointerInfo info) {
         // Turn collisions back on
         TogglePieceColliders(true);
@@ -449,6 +488,10 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Determines if an attempted placement of an existing piece is valid
+    /// </summary>
+    /// <returns>True if the piece can move, false otherwise</returns>
     bool CanMoveTo(Piece piece, PointerInfo info) {
         Debug.Log("CanMoveTo: START");
         TileSide target = info.side;
@@ -507,8 +550,6 @@ public class GameplayManager : MonoBehaviour {
                         }
                     }
 
-                    tempAttackInfo = new PointerInfo { tile = info.tile, isTileA = info.isTileA, side = info.side };
-
                     SetPhase(TurnPhase.BattleStart);
                     Debug.Log("CanMoveTo: Cannot move to spot because this piece is attacking instead");
                 }
@@ -530,6 +571,10 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// If the piece can move, move its physical location, update references to what tile and location it is on,
+    /// and deduct the piece's movesRemaining based on how far it traveled
+    /// </summary>
     void MovePiece(Piece piece, TileSide newSide, bool isTileA, Tile newTile) {
         // Clear old slot
         if (piece.isOnSideA) {
@@ -559,6 +604,9 @@ public class GameplayManager : MonoBehaviour {
             isTileA ? newSide.tileA : newSide.tileB, GetDirectionFromSide(newSide, isTileA));
     }
 
+    /// <summary>
+    /// Return the <see cref="Direction"/> the TileSide is facing
+    /// </summary>
     private Direction GetDirectionFromSide(TileSide side, bool isTileA) {
         Tile tile = isTileA ? side.tileA : side.tileB;
 
@@ -570,7 +618,6 @@ public class GameplayManager : MonoBehaviour {
         return Direction.Top;
     }
 
-    // No more references to this as it was commented out in CanMoveTo()
     [Obsolete]
     public List<TileSide> GetReachable(TileSide start, int maxDistance) {
         var reachable = new List<TileSide>();
@@ -599,6 +646,9 @@ public class GameplayManager : MonoBehaviour {
         return reachable;
     }
 
+    /// <summary>
+    /// Returns a list of <see cref="TileSide"/>s based upon maxDistance and if the TileSides are in <see cref="touchingTiles"/>
+    /// </summary>
     public Dictionary<TileSide, int> GetReachableWithCost(TileSide start, int maxDistance) {
         var queue = new Queue<(TileSide side, int cost)>();
         var visited = new Dictionary<TileSide, int>();
@@ -626,13 +676,16 @@ public class GameplayManager : MonoBehaviour {
         return visited;
     }
 
-    // Determine how far to set the offset from the side
+    /// <summary>
+    /// Determine physical offset of a piece while on a tile so pieces aren't standing on the edge, nor are they on top of one another
+    /// </summary>
+    /// <returns>Vector3 position of where this piece stands</returns>
     private Vector3 DetermineOffset(Tile tile, Direction direction) {
         switch (direction) {
-            case Direction.Top: return new Vector3(tile.transform.position.x, 0, tile.transform.position.z + .25f);
-            case Direction.Bottom: return new Vector3(tile.transform.position.x, 0, tile.transform.position.z - .25f);
-            case Direction.Left: return new Vector3(tile.transform.position.x - .25f, 0, tile.transform.position.z);
-            case Direction.Right: return new Vector3(tile.transform.position.x + .25f, 0, tile.transform.position.z);
+            case Direction.Top: return new Vector3(tile.transform.position.x, 0, tile.transform.position.z + pieceOffset);
+            case Direction.Bottom: return new Vector3(tile.transform.position.x, 0, tile.transform.position.z - pieceOffset);
+            case Direction.Left: return new Vector3(tile.transform.position.x - pieceOffset, 0, tile.transform.position.z);
+            case Direction.Right: return new Vector3(tile.transform.position.x + pieceOffset, 0, tile.transform.position.z);
             default: return new Vector3(0, 0, 0);
         }
     }
@@ -659,7 +712,9 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
-    // Placeholder; When moving a piece, draw available places to move the piece to within move distance
+    /// <summary>
+    /// When moving a piece, draw the valid places to move to with Gizmos
+    /// </summary>
     void OnDrawGizmos() {
         if (debugReachable == null) {
             return;
@@ -682,6 +737,9 @@ public class GameplayManager : MonoBehaviour {
 
     #region Combat
 
+    /// <summary>
+    /// Change the team of a tile when a piece of a differing team moves onto it
+    /// </summary>
     void CaptureTile(Tile tile, Piece piece, Player capturingPlayer) {
         Team teamToLose = tile.team;
         foreach (GameObject p1 in players) {
@@ -699,6 +757,9 @@ public class GameplayManager : MonoBehaviour {
 
     #region Initialization & Utility
 
+    /// <summary>
+    /// Gives game control to the next player in line
+    /// </summary>
     void Capitulate() {
         CloseCardStock();
         ClosePieceStock();
@@ -710,11 +771,17 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Sets the <see cref="TurnPhase"/>
+    /// </summary>
     public void SetPhase(TurnPhase newPhase) {
         Debug.Log("Setting phase to " + newPhase);
         phase = newPhase;
     }
 
+    /// <summary>
+    /// Gets the position of a <see cref="TileSide"/>, i.e. the midpoint between two tiles
+    /// <returns></returns>
     Vector3 GetSideWorldPosition(TileSide side) {
         Vector3 a = side.tileA.transform.position;
 
@@ -736,6 +803,9 @@ public class GameplayManager : MonoBehaviour {
         return a;
     }
 
+    /// <summary>
+    /// Based on game settigns from the main menu, initialize player objects and give starting pieces
+    /// </summary>
     private void InitializePlayers() {
         Team[] teamOrder = { Team.One, Team.Two, Team.Three, Team.Four };
        
@@ -776,6 +846,10 @@ public class GameplayManager : MonoBehaviour {
         basePrice = (int)Mathf.Floor((float)((initAvgTiles / playerCount) * .88));
     }
 
+    /// <summary>
+    /// Based upon where the mouse is on a tile and the direction of where the mouse is on the tile, find the closest
+    /// Directional spot
+    /// </summary>
     private Vector3 GetWorldPosition(Tile tile, Direction dir) {
         Vector3 pos = tile.transform.position;
         switch (dir) {
@@ -806,7 +880,9 @@ public class GameplayManager : MonoBehaviour {
         return players;
     }
 
-    // For now, load in this new player's piece stock to the scrollview content
+    /// <summary>
+    /// Load in the new player's piece and card stock into the ScrollView
+    /// </summary>
     void LoadNewPlayerInfo() {
         foreach (PieceData piece in currentPlayerScript.piecesInStock) {
             GameObject newItem = Instantiate(PieceDisplayPrefab);
@@ -829,6 +905,9 @@ public class GameplayManager : MonoBehaviour {
         GetRewardValue();
     }
 
+    /// <summary>
+    /// When a player's turn ends, switch to the next player in line
+    /// </summary>
     void NextPlayer() {
         int index = players.IndexOf(currentPlayerGO);
         if (index >= players.Count - 1) {
@@ -848,7 +927,9 @@ public class GameplayManager : MonoBehaviour {
         CleanUp();
     }
 
-    // For right now, clear this player's piece stock. Each player will just use the same one with their own data
+    /// <summary>
+    /// Clean up the piece and card stocks
+    /// </summary>
     void CleanUp() {
         foreach (Transform child in playerPieceStockContent) {
             Destroy(child.gameObject);
@@ -860,6 +941,10 @@ public class GameplayManager : MonoBehaviour {
         // More stuff coming soon on video & DVD....
     }
 
+    /// <summary>
+    /// At the start of a new round, tick down any active <see cref="StatusEffect"/>s
+    /// </summary>
+    /// 
     public void TickDownEffects() {
         StatusHost[] allHosts = FindObjectsByType<StatusHost>(FindObjectsSortMode.None);
         foreach (var host in allHosts) {
@@ -867,6 +952,9 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Return info based on where the mouse currently is. See <see cref="PointerInfo"/> for data that is returned
+    /// </summary>
     private PointerInfo GetPointerInfo() {
         PointerInfo info = new PointerInfo { direction = Direction.None };
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -894,6 +982,11 @@ public class GameplayManager : MonoBehaviour {
         return info;
     }
 
+    /// <summary>
+    /// Get the tiles that are reachable via the startTile. Reachable tiles are those
+    /// that are directly connected to the startTile by sides and on the same team as the
+    /// startTile
+    /// </summary>
     private void GetTouchingTiles(Tile startTile) {
         string tileNames = "";
         HashSet<Tile> tiles = new HashSet<Tile>();
@@ -928,6 +1021,12 @@ public class GameplayManager : MonoBehaviour {
         currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nPhase: {phase}\nMoves remaining: {currentPlayerScript.remainingPieceMoves}";
     }
 
+    /// <summary>
+    /// Sort of like a comeback mechanic, when players are rewarded their free items at the beginning of their turns,
+    /// the <see cref="Rank"/> of the items is determined based on how they are faring compared to other players. If a player
+    /// has less tiles and money than others, the reward value goes up, but if they have more, it goes down. 
+    /// </summary>
+    /// <returns>A decimal value representing the reward value. The larger it is, the bigger the reward</returns>
     private double GetRewardValue() {
         double value = 1.0;
 
@@ -942,6 +1041,9 @@ public class GameplayManager : MonoBehaviour {
         return value;
     }
 
+    /// <summary>
+    /// Turns on each piece's CapsuleCollider if toggle is true and vice versa
+    /// </summary>
     private void TogglePieceColliders(bool toggle) {
         foreach (Piece p in piecesOnBoard) { p.GetComponent<CapsuleCollider>().enabled = toggle; }
     }
@@ -988,8 +1090,14 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Get a specified number of pieces that are of the specified rank. Pieces
+    /// are chosen from the shop's availablePieces List
+    /// </summary>
+    /// <param name="numPieces">The desired number of pieces to select</param>
+    /// <param name="rank">The rank of the pieces</param>
+    /// <returns>A list of pieces with the above criteria</returns>
     List<PieceData> GetXRandomPieces(int numPieces, Rank rank) {
-        System.Random rand = new System.Random();
         return availablePieces
         .Where(p => p.rank == rank) 
         .OrderBy(_ => rand.Next())
@@ -997,6 +1105,10 @@ public class GameplayManager : MonoBehaviour {
         .ToList();
     }
 
+    /// <summary>
+    /// Purchase either a piece or a card from the shop and add it to the player's stock. If they can't
+    /// afford it, nothing happens
+    /// </summary>
     private void BuyItemFromShop(ScriptableObject data) {
         if (data.GetType() == typeof(PieceData)) {
             Debug.Log("Piece");
