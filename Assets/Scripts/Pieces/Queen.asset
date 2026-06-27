@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pieceName: Queen
   cost: 0
-  modelPrefab: {fileID: 0}
-  shopIcon: {fileID: 0}
-  multiplier: 0
+  modelPrefab: {fileID: 7232613527415481940, guid: acbfaad97819e4a42af10d83a41bcb6e, type: 3}
+  shopIcon: {fileID: 21300000, guid: d9aefd628ff8435439642f1f2bb4e679, type: 3}
+  costMultiplier: 3.85
+  mvRgMultiplier: 1
   initMaxHealth: 70
   moveRange: 3
   dice: 02000000020000000200000002000000020000000200000002000000020000000200000002000000020000000200000002000000020000000200000002000000

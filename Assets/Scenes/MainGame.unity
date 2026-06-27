@@ -510,6 +510,7 @@ MonoBehaviour:
   availablePieces:
   - {fileID: 11400000, guid: bc27d191ff4ef5747ac4e0184ee4b096, type: 2}
   - {fileID: 11400000, guid: a32ca6b93405bfc408c655ea3141fd0f, type: 2}
+  - {fileID: 11400000, guid: 2656ad0cd2c1bc841998070488201484, type: 2}
   availableCards:
   - {fileID: 11400000, guid: 3d594aa1c26b65e4abfa70f25f0a2c99, type: 2}
   - {fileID: 11400000, guid: 95cb79d5665770a4690056852b97a927, type: 2}
@@ -522,6 +523,7 @@ MonoBehaviour:
   players: []
   piecesOnBoard: []
   basePrice: 0
+  baseMoveRange: 0
 --- !u!4 &91122714
 Transform:
   m_ObjectHideFlags: 0

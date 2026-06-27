@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: CornGuy
   m_EditorClassIdentifier: 
   pieceName: CornGuy
-  cost: 12
+  cost: 0
   modelPrefab: {fileID: 6738186515427605845, guid: 37ca46990b615564f8d3b0c83f23938a, type: 3}
   shopIcon: {fileID: 21300000, guid: 30569529f8b38784da078ee20b508df7, type: 3}
-  multiplier: 1.2
+  costMultiplier: 0
+  mvRgMultiplier: 0.2
   initMaxHealth: 3
-  attackDamage: 1
   moveRange: 3
   dice: 05000000
   id: 
+  rank: 0
