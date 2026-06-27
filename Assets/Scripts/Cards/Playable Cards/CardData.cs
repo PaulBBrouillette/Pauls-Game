@@ -18,7 +18,7 @@ public class CardData : ScriptableObject {
     public string id; // Unique identifier for this card for purposes of referencing it
     public Sprite shopIcon;
     public int cost;
-    public float multiplier; // 1.0-2.0 Rank One, 2.1-3.2 Rank Two, 3.3-4.0 Rank Three
+    public float costMultiplier; // 1.0-2.0 Rank One, 2.1-3.2 Rank Two, 3.3-4.0 Rank Three
     public float effectAmount; // Amount if this card adds things, such as extra turns
     public Rank rank;
 

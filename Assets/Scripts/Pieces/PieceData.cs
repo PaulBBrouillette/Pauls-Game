@@ -7,7 +7,8 @@ public class PieceData : ScriptableObject {
     public int cost = 0;
     public GameObject modelPrefab; // The 3D model for this specific piece
     public Sprite shopIcon;        // Image for the UI button
-    public float multiplier; // Multiplied by the base to determine cost
+    public float costMultiplier; // Multiplied by the base to determine cost | 1.0-2.0 Rank One, 2.1-3.2 Rank Two, 3.3-4.0 Rank Three
+    public float mvRgMultiplier = 0.1f; // Move range multiplier from 0.1 to 1.0, 1.0 being can move the whole length of the board
 
     // Stats
     public int initMaxHealth = 10; // Piece types initial maximum health

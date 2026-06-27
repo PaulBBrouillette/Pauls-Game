@@ -77,6 +77,7 @@ public class GameplayManager : MonoBehaviour {
     private HashSet<Tile> touchingTiles; // Friendly tiles touching a specified tile
     private int initAvgTiles; // The starting average number of tiles per player at game start
     public int basePrice; // Base price for scaling item prices
+    public int baseMoveRange; // The move range that allows movement across the entire map
     private bool roundOneOver = false; // Tracks if the first round is over
 
     // Holds data about what the mouse is currently looking at
@@ -101,6 +102,7 @@ public class GameplayManager : MonoBehaviour {
         }
         Debug.Log("GameplayManager Start - START");
         playerCount = BetweenScene.Instance.numPlayers;
+        baseMoveRange = BetweenScene.Instance.gridHeight + BetweenScene.Instance.gridWidth;
         InitializeGhost();
         InitializePlayers();
         piecesOnBoard = new List<Piece>();
@@ -571,7 +573,7 @@ public class GameplayManager : MonoBehaviour {
             return false;
         }
         // Check if the player has enough moves left to even move this piece
-        if (currentPlayerScript.remainingPieceMoves <= 0) {
+        if (currentPlayerScript.remainingPieceMoves - moveDistanceI < 0) {
             Debug.Log("CanMoveTo: Player doesn't have enough moves left to move");
             return false;
         }
@@ -1061,7 +1063,6 @@ public class GameplayManager : MonoBehaviour {
         foreach (Tile tile in tiles) {
             tileNames += tile.name + " ";
         }
-        Debug.Log(tileNames);
         touchingTiles = tiles;
     }
 
@@ -1124,7 +1125,8 @@ public class GameplayManager : MonoBehaviour {
         foreach (PieceData piece in availablePieces) {
             GameObject button = Instantiate(shopItem);
 
-            piece.cost = Mathf.CeilToInt(piece.multiplier * basePrice);
+            piece.cost = Mathf.CeilToInt(piece.costMultiplier * basePrice);
+            piece.moveRange = Mathf.CeilToInt(piece.mvRgMultiplier * baseMoveRange);
 
             button.transform.SetParent(shopPanel.transform);
             TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>();
@@ -1140,7 +1142,7 @@ public class GameplayManager : MonoBehaviour {
         foreach (CardData card in availableCards) {
             GameObject button = Instantiate(shopItem);
 
-            card.cost = Mathf.CeilToInt(card.multiplier * basePrice);
+            card.cost = Mathf.CeilToInt(card.costMultiplier * basePrice);
 
             button.transform.SetParent(shopPanel.transform);
             TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>();
