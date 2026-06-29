@@ -81,6 +81,8 @@ public class GameplayManager : MonoBehaviour {
     public int basePrice; // Base price for scaling item prices
     public int baseMoveRange; // The move range that allows movement across the entire map
     private bool roundOneOver = false; // Tracks if the first round is over
+    private string pieceRef = "Piece";
+    private string tileRef = "Tile";
 
     // Holds data about what the mouse is currently looking at
     private struct PointerInfo {
@@ -208,7 +210,7 @@ public class GameplayManager : MonoBehaviour {
                         case TargetType.FriendlyPiece:
                             // Check that the piece you are selecting is a friendly one
                             if (Physics.Raycast(ray, out RaycastHit hit)) {
-                                if (hit.collider.CompareTag("Piece")) {
+                                if (hit.collider.CompareTag(pieceRef)) {
                                     Piece p = hit.collider.GetComponent<Piece>();
                                     if (p != null && p.team == currentPlayerScript.team) {
                                         Debug.Log("This is a friendly piece!");
@@ -222,7 +224,7 @@ public class GameplayManager : MonoBehaviour {
 
                         case TargetType.EnemyPiece:
                             if (Physics.Raycast(ray, out RaycastHit hit3)) {
-                                if (hit3.collider.CompareTag("Piece")) {
+                                if (hit3.collider.CompareTag(pieceRef)) {
                                     Piece p = hit3.collider.GetComponent<Piece>();
                                     if (p != null && p.team != currentPlayerScript.team) {
                                         Debug.Log("This is an enemy piece!");
@@ -236,7 +238,7 @@ public class GameplayManager : MonoBehaviour {
 
                         case TargetType.EnemyTile:
                             if (Physics.Raycast(ray, out RaycastHit hit2)) {
-                                if (hit2.collider.CompareTag("Tile")) {
+                                if (hit2.collider.CompareTag(tileRef)) {
                                     Tile t = hit2.collider.GetComponent<Tile>();
                                     if (t != null && t.team != currentPlayerScript.team) {
                                         if (selectedCardToBuy.cardType == CardType.Imbue) {
@@ -262,7 +264,7 @@ public class GameplayManager : MonoBehaviour {
 
                         case TargetType.MultiSelectTile:
                             if (Physics.Raycast(ray, out RaycastHit hit4)) {
-                                if (hit4.collider.CompareTag("Tile")) {
+                                if (hit4.collider.CompareTag(tileRef)) {
                                     Tile t = hit4.collider.GetComponent<Tile>();
                                     if (t != null) {
                                         firstSelectedTile = t;
@@ -273,7 +275,7 @@ public class GameplayManager : MonoBehaviour {
                             break;
                         case TargetType.MultiSelectPiece:
                             if (Physics.Raycast(ray, out RaycastHit hit5)) {
-                                if (hit5.collider.CompareTag("Piece")) {
+                                if (hit5.collider.CompareTag(pieceRef)) {
                                     Piece p = hit5.collider.GetComponent<Piece>();
                                     if (p != null) {
                                         firstSelectedPiece = p;
@@ -297,7 +299,7 @@ public class GameplayManager : MonoBehaviour {
                     switch (type) {
                         case TargetType.MultiSelectTile:
                             if (Physics.Raycast(ray, out RaycastHit hit)) {
-                                if (hit.collider.CompareTag("Tile")) {
+                                if (hit.collider.CompareTag(tileRef)) {
                                     Tile t = hit.collider.GetComponent<Tile>();
                                     if (t != null && t != firstSelectedTile) {
                                         if (selectedCardToBuy.cardType == CardType.Single) {
@@ -312,7 +314,7 @@ public class GameplayManager : MonoBehaviour {
                             break;
                         case TargetType.MultiSelectPiece:
                             if (Physics.Raycast(ray, out RaycastHit hit2)) {
-                                if (hit2.collider.CompareTag("Piece")) {
+                                if (hit2.collider.CompareTag(pieceRef)) {
                                     Piece p = hit2.collider.GetComponent<Piece>();
                                     if (p != null && p != firstSelectedPiece) {
                                         if (selectedCardToBuy.cardType == CardType.Single) {
@@ -495,7 +497,7 @@ public class GameplayManager : MonoBehaviour {
     private bool TryGrabPiece(PointerInfo info) {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         if (Physics.Raycast(ray, out RaycastHit hit)) {
-            if (hit.collider.CompareTag("Piece")) {
+            if (hit.collider.CompareTag(pieceRef)) {
                 Piece p = hit.collider.GetComponent<Piece>();
                 if (p != null && p.getTeam() == currentPlayerScript.getTeam()) {
                     currentMovingPiece = hit.collider.gameObject;
@@ -1180,7 +1182,7 @@ public class GameplayManager : MonoBehaviour {
     /// </summary>
     private void BuyItemFromShop(ScriptableObject data) {
         if (data.GetType() == typeof(PieceData)) {
-            Debug.Log("Piece");
+            Debug.Log(pieceRef);
             selectedPieceToBuy = (PieceData)data;
             int cost = selectedPieceToBuy.cost;
 
@@ -1253,12 +1255,18 @@ public class GameplayManager : MonoBehaviour {
         if (cardStockObject.activeSelf) {
             TogglePieceColliders(false);
         }
+        else {
+            TogglePieceColliders(true);
+        }
     }
 
     public void TogglePieceStock() {
         pieceStockObject.SetActive(!pieceStockObject.activeSelf);
         if (pieceStockObject.activeSelf) {
             TogglePieceColliders(false);
+        }
+        else {
+            TogglePieceColliders(true);
         }
     }
 
