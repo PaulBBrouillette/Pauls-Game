@@ -12,9 +12,11 @@ GameObject:
   - component: {fileID: 2574663332071834271}
   - component: {fileID: 6664604792798064059}
   - component: {fileID: 6957386576492279246}
+  - component: {fileID: -405767195200020859}
+  - component: {fileID: -7247509923656327214}
   m_Layer: 0
   m_Name: CornGuyModel
-  m_TagString: Untagged
+  m_TagString: Piece
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -107,3 +109,40 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-405767195200020859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6738186515427605845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a0598eddaf1a8442a9bf696c2dbb727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 0
+  element: 0
+  data: {fileID: 0}
+  currentSide:
+    tileA: {fileID: 0}
+    tileB: {fileID: 0}
+    occupantA: {fileID: 0}
+    occupantB: {fileID: 0}
+  isOnSideA: 0
+  currentHealth: 0
+  movesRemaining: 0
+  currentTile: {fileID: 0}
+--- !u!114 &-7247509923656327214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6738186515427605845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cae78896b9d7f9a40b6dc4ee020e08e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeEffects: []

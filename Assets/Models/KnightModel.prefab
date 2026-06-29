@@ -12,9 +12,11 @@ GameObject:
   - component: {fileID: 7359777349704403383}
   - component: {fileID: 2129732139099526028}
   - component: {fileID: 4497682139600574744}
+  - component: {fileID: -1126485284656988909}
+  - component: {fileID: -2242309147044913997}
   m_Layer: 0
   m_Name: KnightModel
-  m_TagString: Untagged
+  m_TagString: Piece
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -107,3 +109,40 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-1126485284656988909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2388225570489705903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a0598eddaf1a8442a9bf696c2dbb727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 0
+  element: 0
+  data: {fileID: 0}
+  currentSide:
+    tileA: {fileID: 0}
+    tileB: {fileID: 0}
+    occupantA: {fileID: 0}
+    occupantB: {fileID: 0}
+  isOnSideA: 0
+  currentHealth: 0
+  movesRemaining: 0
+  currentTile: {fileID: 0}
+--- !u!114 &-2242309147044913997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2388225570489705903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cae78896b9d7f9a40b6dc4ee020e08e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeEffects: []

@@ -17,7 +17,7 @@ MonoBehaviour:
   targetType: 1
   cardType: 0
   actions:
-  - rid: 5922434184543469568
+  - rid: 5922434295624368133
   turnDuration: 3
   existsUntilDestroyed: 0
   id: 
@@ -29,9 +29,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 5922434184543469568
-      type: {class: CA_Bind, ns: , asm: Assembly-CSharp}
+    - rid: 5922434295624368133
+      type: {class: SetPieceMoves, ns: , asm: Assembly-CSharp}
       data:
         duration: 3
         existsUntilDestroyed: 0
-        effectAmount: 0
+        effectAmount: 1

@@ -17,7 +17,7 @@ MonoBehaviour:
   targetType: 4
   cardType: 1
   actions:
-  - rid: 5922433978502479872
+  - rid: 5922434295624368131
   turnDuration: -1
   existsUntilDestroyed: 0
   id: 
@@ -29,8 +29,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 5922433978502479872
-      type: {class: CA_ChangeTileTeam, ns: , asm: Assembly-CSharp}
+    - rid: 5922434295624368131
+      type: {class: ChangeTileTeam, ns: , asm: Assembly-CSharp}
       data:
         duration: -1
         existsUntilDestroyed: 0

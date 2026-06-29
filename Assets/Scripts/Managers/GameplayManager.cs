@@ -83,6 +83,7 @@ public class GameplayManager : MonoBehaviour {
     private bool roundOneOver = false; // Tracks if the first round is over
     private string pieceRef = "Piece";
     private string tileRef = "Tile";
+    private int pieceIndex = 0;
 
     // Holds data about what the mouse is currently looking at
     private struct PointerInfo {
@@ -438,7 +439,16 @@ public class GameplayManager : MonoBehaviour {
     void PlacePiece(Tile tile, Direction direction, bool isThisTileA, TileSide side) {
         Vector3 spawnPos = DetermineOffset(tile, direction);
 
-        GameObject pieceGO = Instantiate(piecePrefab, spawnPos, Quaternion.identity);
+        GameObject pPrefab = null;
+
+        if (selectedPieceToBuy.modelPrefab == null) {
+            pPrefab = piecePrefab;
+        }
+        else {
+            pPrefab = selectedPieceToBuy.modelPrefab;
+        }
+
+        GameObject pieceGO = Instantiate(pPrefab, spawnPos, Quaternion.identity);
 
         // INITIALIZE the piece with our data
         Piece p = pieceGO.GetComponent<Piece>();
@@ -446,6 +456,8 @@ public class GameplayManager : MonoBehaviour {
         p.SetPosition(side, isThisTileA);
         p.currentHealth = selectedPieceToBuy.initMaxHealth;
         p.currentTile = tile;
+        p.name = selectedPieceToBuy.name + "_" + pieceIndex;
+        pieceIndex++;
         pieceGO.transform.parent = tile.transform;
 
         // Save the reference to the correct slot
@@ -1256,7 +1268,10 @@ public class GameplayManager : MonoBehaviour {
             TogglePieceColliders(false);
         }
         else {
-            TogglePieceColliders(true);
+            // Also check that piece stock is open, if it is, don't activate colliders
+            if (!pieceStockObject.activeSelf) {
+                TogglePieceColliders(true);
+            }
         }
     }
 
@@ -1266,7 +1281,10 @@ public class GameplayManager : MonoBehaviour {
             TogglePieceColliders(false);
         }
         else {
-            TogglePieceColliders(true);
+            // Also check that card stock is open, if it is, don't activate colliders
+            if (!cardStockObject.activeSelf) {
+                TogglePieceColliders(true);
+            }
         }
     }
 

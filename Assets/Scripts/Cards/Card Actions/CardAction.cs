@@ -1,7 +1,7 @@
 [System.Serializable]
 public abstract class CardAction {
 
-    public int duration;
+    public int duration = -1;
     public bool existsUntilDestroyed;
     public float effectAmount;
 

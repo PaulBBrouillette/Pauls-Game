@@ -17,19 +17,20 @@ MonoBehaviour:
   targetType: 0
   cardType: 0
   actions:
-  - rid: 8369683134734925824
+  - rid: 5922434295624368129
   turnDuration: 3
   existsUntilDestroyed: 0
   id: 
   shopIcon: {fileID: 21300000, guid: 6922dae4d801d7f40bb4b5ce77da28fb, type: 3}
   cost: 0
-  multiplier: 1.8
+  costMultiplier: 0
   effectAmount: 3
+  rank: 0
   references:
     version: 2
     RefIds:
-    - rid: 8369683134734925824
-      type: {class: CA_AddTurns, ns: , asm: Assembly-CSharp}
+    - rid: 5922434295624368129
+      type: {class: AddPieceTurns, ns: , asm: Assembly-CSharp}
       data:
         duration: 3
         existsUntilDestroyed: 0

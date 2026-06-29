@@ -17,7 +17,7 @@ MonoBehaviour:
   targetType: 0
   cardType: 0
   actions:
-  - rid: 8369682978285027328
+  - rid: 5922434295624368128
   turnDuration: -1
   existsUntilDestroyed: 1
   id: 
@@ -29,9 +29,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 8369682978285027328
-      type: {class: CA_SurviveBattle, ns: , asm: Assembly-CSharp}
+    - rid: 5922434295624368128
+      type: {class: SurviveBattle, ns: , asm: Assembly-CSharp}
       data:
-        duration: 0
-        existsUntilDestroyed: 0
+        duration: -1
+        existsUntilDestroyed: 1
         effectAmount: 0
