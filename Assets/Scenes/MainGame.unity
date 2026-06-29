@@ -512,11 +512,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a32ca6b93405bfc408c655ea3141fd0f, type: 2}
   - {fileID: 11400000, guid: 2656ad0cd2c1bc841998070488201484, type: 2}
   availableCards:
-  - {fileID: 11400000, guid: 3d594aa1c26b65e4abfa70f25f0a2c99, type: 2}
-  - {fileID: 11400000, guid: 95cb79d5665770a4690056852b97a927, type: 2}
-  - {fileID: 11400000, guid: 220794ccf8393084cabf105cf8481930, type: 2}
-  - {fileID: 11400000, guid: de0ec28d4cdd85349a163757ed3e07f9, type: 2}
-  - {fileID: 11400000, guid: a1ac2b2d7d79e494d9323da74272e0d3, type: 2}
   - {fileID: 11400000, guid: fee8c798dae13634f96e3c7ea51b40d6, type: 2}
   attackerIcon: {fileID: 1856973505}
   defenderIcon: {fileID: 734749350}

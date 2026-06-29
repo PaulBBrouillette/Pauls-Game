@@ -17,20 +17,20 @@ MonoBehaviour:
   targetType: 2
   cardType: 1
   actions:
-  - rid: 5922434227422363648
+  - rid: 5922434292206534657
   turnDuration: -1
   existsUntilDestroyed: 0
   id: 
   shopIcon: {fileID: 21300000, guid: ecbb9e436b220f64a8ef7997acabae40, type: 3}
-  cost: 35
-  multiplier: 3.5
+  cost: 119
+  costMultiplier: 3.5
   effectAmount: 0
   rank: 2
   references:
     version: 2
     RefIds:
-    - rid: 5922434227422363648
-      type: {class: CA_SwitchPieceEffects, ns: , asm: Assembly-CSharp}
+    - rid: 5922434292206534657
+      type: {class: SwitchPieceEffects, ns: , asm: Assembly-CSharp}
       data:
         duration: -1
         existsUntilDestroyed: 0

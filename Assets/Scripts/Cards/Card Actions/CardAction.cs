@@ -1,5 +1,3 @@
-using UnityEngine;
-
 [System.Serializable]
 public abstract class CardAction {
 
@@ -15,15 +13,6 @@ public abstract class CardAction {
         DoAction(owner, targetOwner, targetPiece, secondPiece, targetTile, secondTile, effectAmount, duration, existsUntilDestroyed);
     }
 
-    public int DecreaseDuration() {
-        if (!existsUntilDestroyed) {
-            duration--;
-        }
-        return duration;
-    }
-
     // Do the effect
     public abstract void DoAction(Player owner, Player targetOwner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile, float effectAmount, int duration, bool existsUntilDestroyed);
-    public virtual void Deactivate(Player owner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile, float effectAmount) {  }
-
 }

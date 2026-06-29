@@ -1,5 +1,3 @@
-public enum EffectType { ExtraMove, ExtraHealth, ExtraDamage, ExtraDice, BattleStart, BattleEnd, BattleStartEnd }
-
 [System.Serializable]
 public class StatusEffect {
     public string effectName;
@@ -7,14 +5,12 @@ public class StatusEffect {
     public int remainingTurns;
     public int power; // The value (e.g., +2 moves, +5 attack)
     public bool existsUntilDestroyed;
-    public EffectType effectType;
 
-    public StatusEffect(string name, int duration, int value, bool existsUntilDestroyed, EffectType effectType, CardId id) {
+    public StatusEffect(string name, int duration, int value, bool existsUntilDestroyed, CardId id) {
         effectName = name;
         remainingTurns = duration;
         power = value;
         this.existsUntilDestroyed = existsUntilDestroyed;
-        this.effectType = effectType;
         this.id = id;
     }
 

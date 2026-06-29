@@ -22,8 +22,8 @@ MonoBehaviour:
   existsUntilDestroyed: 0
   id: 
   shopIcon: {fileID: 21300000, guid: 1da0c8d56138c5546ade0c66908f2dea, type: 3}
-  cost: 19
-  multiplier: 1.85
+  cost: 60
+  costMultiplier: 1.75
   effectAmount: 0
   rank: 0
   references:

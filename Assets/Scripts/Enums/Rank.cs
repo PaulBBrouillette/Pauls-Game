@@ -1,5 +1,5 @@
 public enum Rank {
-    Normal,
-    Rare,
-    Epic
+    One,
+    Two,
+    Three
 }

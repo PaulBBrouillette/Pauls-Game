@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class CA_SwitchPieceEffects : CardAction {
+public class SwitchPieceEffects : CardAction {
     public override void DoAction(Player owner, Player targetOwner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile, float effectAmount, int duration, bool existsUntilDestroyed) {
         List<StatusEffect> fpEffects = new();
         List<StatusEffect> spEffects = new();

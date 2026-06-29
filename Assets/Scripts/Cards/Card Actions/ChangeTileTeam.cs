@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CA_ChangeTileTeam : CardAction {
+public class ChangeTileTeam : CardAction {
     public override void DoAction(Player owner, Player targetOwner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile, float effectAmount, int duration, bool existsUntilDestroyed) {
         if (targetTile != null) {
             List<Piece> list = targetTile.GetAllPiecesOnTile();

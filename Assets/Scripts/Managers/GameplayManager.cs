@@ -48,7 +48,9 @@ public class GameplayManager : MonoBehaviour {
     public List<PieceData> availablePieces;
     private PieceData selectedPieceToBuy;   // Which one the player clicked in the UI
     private int selectedPieceIndex; // Unique stock index for deletion
-    
+
+    [SerializeReference]
+    // Changing from CardData for a test
     public List<CardData> availableCards;
     private CardData selectedCardToBuy;
     private int selectedCardIndex;
@@ -885,7 +887,7 @@ public class GameplayManager : MonoBehaviour {
             p.setPlayerType(PlayerType.Human);
 
             // Get 2 random normal pieces
-            List<PieceData> randomPieces = GetXRandomPieces(2, Rank.Normal);
+            List<PieceData> randomPieces = GetXRandomPieces(2, Rank.One);
             foreach (PieceData piece in randomPieces) {
                 p.AddPieceToStock(piece);
             }
@@ -1121,6 +1123,7 @@ public class GameplayManager : MonoBehaviour {
     /// Instantiate buttons, as well as set prices for items based on basePrice
     /// </summary>
     void SetupShop() {
+
         // Pieces
         foreach (PieceData piece in availablePieces) {
             GameObject button = Instantiate(shopItem);
@@ -1147,7 +1150,7 @@ public class GameplayManager : MonoBehaviour {
             button.transform.SetParent(shopPanel.transform);
             TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>();
             if (tmpText != null) {
-                tmpText.text = card.name + " $" + card.cost;
+                tmpText.text = card.cardName + " $" + card.cost;
             }
             Button buttonComponent = button.GetComponent<Button>();
             if (buttonComponent != null) {

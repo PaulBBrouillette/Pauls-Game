@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +7,13 @@ public enum TargetType { FriendlyPiece, EnemyPiece, MultiSelectPiece, FriendlyTi
 public enum CardType { Imbue, Single } // Used in CardAction to determine if to apply an imbued effect to be used overtime or at a later time or do an action immediately
 
 [CreateAssetMenu(menuName = "Cards/New Card")]
+[Serializable]
 public class CardData : ScriptableObject {
     public string cardName;
     public CardContext context;
     public TargetType targetType;
     public CardType cardType;
-    [SerializeReference, SelectSubclass]
+    [SerializeReference]
     public List<CardAction> actions = new List<CardAction>();
     public int turnDuration = -1; // If imbued, how many turns the effect will last. If it will last forever, then it is -1
     public bool existsUntilDestroyed; // If true, then this will exist forever until it is used or the piece is destroyed

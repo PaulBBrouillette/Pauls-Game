@@ -22,7 +22,7 @@ MonoBehaviour:
   id: 
   shopIcon: {fileID: 21300000, guid: 3039a454672494248b9f587b11633c77, type: 3}
   cost: 0
-  multiplier: 2
+  costMultiplier: 2.5
   effectAmount: 1
   rank: 1
   references:

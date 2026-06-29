@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Knight
   m_EditorClassIdentifier: 
   pieceName: Knight
-  cost: 0
+  cost: 72
   modelPrefab: {fileID: 2388225570489705903, guid: 60e5e72d834a8ba41b840a5fdd7a4619, type: 3}
   shopIcon: {fileID: 21300000, guid: 6922dae4d801d7f40bb4b5ce77da28fb, type: 3}
-  costMultiplier: 0
+  costMultiplier: 2.1
   mvRgMultiplier: 0.35
   initMaxHealth: 35
-  moveRange: 5
+  moveRange: 14
   dice: 060000000500000004000000
   id: 
-  rank: 0
+  rank: 1
