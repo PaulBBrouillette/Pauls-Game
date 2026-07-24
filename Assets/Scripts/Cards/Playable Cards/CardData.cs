@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum CardContext { MainMap, BattleStart, BattleEnd } // For right now cards can only be activated on the main map but CardContext tells where they will be activated, i.e. Bear One Another's Burdens will be CardContext MainMap and CardType OneTime which will activate immediately, but Wiederganger will be Imbue and BattleEnd and only be activated at the end of a battle 
-public enum TargetType { FriendlyPiece, EnemyPiece, MultiSelectPiece, FriendlyTile, EnemyTile, MultiSelectTile, MyTeam, EnemyTeam } // After selecting a card, this will determine what targets you can choose from
+public enum TargetType { FriendlyPiece, EnemyPiece, MultiSelectPiece, FriendlyTile, EnemyTile, MultiSelectTile, Team } // After selecting a card, this will determine what targets you can choose from
 public enum CardType { Imbue, Single } // Used in CardAction to determine if to apply an imbued effect to be used overtime or at a later time or do an action immediately
 
 [CreateAssetMenu(menuName = "Cards/New Card")]

@@ -6,5 +6,4 @@ public class SetPlayerMoves : CardAction {
         host.AddEffect(new StatusEffect("HomeopathicDelusion", duration, (int)effectAmount, existsUntilDestroyed, CardId.N_HPTHDL));
         Debug.Log("Effect added!");
     }
-
 }

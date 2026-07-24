@@ -28,6 +28,7 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private GameObject mainUIPanel;
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private GameObject battlePanel;
+    [SerializeField] private GameObject teamSelectPanel;
     [SerializeField] private TextMeshProUGUI currentPlayerUI;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button capitulateButton;
@@ -122,6 +123,7 @@ public class GameplayManager : MonoBehaviour {
         GridManager.Instance.InitializeMap();
         CameraManager.Instance.SetupCamera(BetweenScene.Instance.gridWidth, BetweenScene.Instance.gridHeight);
         SetupShop();
+        SetupTeamSelectionPanel();
         SetPhase(TurnPhase.RoundOneStart);
         DisableShop();
         Debug.Log("GameplayManager Start - END");
@@ -263,6 +265,32 @@ public class GameplayManager : MonoBehaviour {
                             }
                             break;
 
+                        case TargetType.FriendlyTile:
+                            if (Physics.Raycast(ray, out RaycastHit hit6)) {
+                                if (hit6.collider.CompareTag(tileRef)) {
+                                    Tile t = hit6.collider.GetComponent<Tile>();
+                                    if (t != null && t.team == currentPlayerScript.team) {
+                                        if (selectedCardToBuy.cardType == CardType.Imbue) {
+                                            RemoveCardFromStock();
+                                            SetPhase(TurnPhase.Wait);
+                                        }
+                                        else {
+                                            Team te = info.tile.team;
+                                            Player p = currentPlayerScript;
+                                            for (int i = 0; i < players.Count; i++) {
+                                                if (players[i].GetComponent<Player>().team == te) {
+                                                    p = players[i].GetComponent<Player>();
+                                                }
+                                            }
+                                            selectedCardToBuy.PlayCard(currentPlayerScript, p, null, null, t, null);
+                                            RemoveCardFromStock();
+                                            SetPhase(TurnPhase.Wait);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+
                         case TargetType.MultiSelectTile:
                             if (Physics.Raycast(ray, out RaycastHit hit4)) {
                                 if (hit4.collider.CompareTag(tileRef)) {
@@ -285,6 +313,12 @@ public class GameplayManager : MonoBehaviour {
                                 }
                             }
                             break;
+                    }
+                }
+                else {
+                    if (selectedCardToBuy.targetType == TargetType.Team) {
+                        // Wait for player to select team
+                        teamSelectPanel.SetActive(true);
                     }
                 }
                 break;
@@ -589,7 +623,7 @@ public class GameplayManager : MonoBehaviour {
             return false;
         }
         // Check if the player has enough moves left to even move this piece
-        if (currentPlayerScript.remainingPieceMoves - moveDistanceI < 0) {
+        if (currentPlayerScript.GetTotalMoveRange() - moveDistanceI < 0) {
             Debug.Log("CanMoveTo: Player doesn't have enough moves left to move");
             return false;
         }
@@ -764,10 +798,10 @@ public class GameplayManager : MonoBehaviour {
     /// <returns>Vector3 position of where this piece stands</returns>
     private Vector3 DetermineOffset(Tile tile, Direction direction) {
         switch (direction) {
-            case Direction.Top: return new Vector3(tile.transform.position.x, 0, tile.transform.position.z + pieceOffset);
-            case Direction.Bottom: return new Vector3(tile.transform.position.x, 0, tile.transform.position.z - pieceOffset);
-            case Direction.Left: return new Vector3(tile.transform.position.x - pieceOffset, 0, tile.transform.position.z);
-            case Direction.Right: return new Vector3(tile.transform.position.x + pieceOffset, 0, tile.transform.position.z);
+            case Direction.Top: return new Vector3(tile.transform.position.x, 1, tile.transform.position.z + pieceOffset);
+            case Direction.Bottom: return new Vector3(tile.transform.position.x, 1, tile.transform.position.z - pieceOffset);
+            case Direction.Left: return new Vector3(tile.transform.position.x - pieceOffset, 1, tile.transform.position.z);
+            case Direction.Right: return new Vector3(tile.transform.position.x + pieceOffset, 1, tile.transform.position.z);
             default: return new Vector3(0, 0, 0);
         }
     }
@@ -1099,7 +1133,7 @@ public class GameplayManager : MonoBehaviour {
     }
 
     private void UpdateUI() {
-        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nPhase: {phase}\nMoves remaining: {currentPlayerScript.remainingPieceMoves}";
+        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nPhase: {phase}\nMoves remaining: {currentPlayerScript.GetTotalMoveRange()}";
     }
 
     /// <summary>
@@ -1171,6 +1205,47 @@ public class GameplayManager : MonoBehaviour {
                 buttonComponent.onClick.AddListener(() => BuyItemFromShop(card));
             }
         }
+    }
+
+    /// <summary>
+    /// Populate the team selection panel
+    /// </summary>
+    void SetupTeamSelectionPanel() {
+        Debug.Log("SetupTeamSelectionPanel START");
+        foreach (GameObject player in players) {
+            GameObject button = Instantiate(shopItem);
+            Player p = player.GetComponent<Player>();
+            TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>();
+            if (tmpText != null) {
+                tmpText.text = p.name;
+            }
+            button.transform.SetParent(teamSelectPanel.transform);
+            Button buttonComponent = button.GetComponent<Button>();
+            if (buttonComponent != null) {
+                buttonComponent.onClick.AddListener(() => SelectTeamAsTarget(p.team));
+            }
+        }
+        Debug.Log("SetupTeamSelectionPanel END");
+    }
+
+    /// <summary>
+    /// Select the target team when the player has a card with a target type of Team
+    /// </summary>
+    void SelectTeamAsTarget(Team team) {
+        Player p = null;
+        foreach (GameObject player in players) {
+            if (player.GetComponent<Player>() != null) {
+                if (player.GetComponent<Player>().team == team) {
+                    p = player.GetComponent<Player>();
+                }
+            }
+        }
+
+        Debug.Log("I chose " + team);
+        selectedCardToBuy.PlayCard(currentPlayerScript, p, null, null, null, null);
+        RemoveCardFromStock();
+        teamSelectPanel.SetActive(false);
+        SetPhase(TurnPhase.Wait);
     }
 
     /// <summary>

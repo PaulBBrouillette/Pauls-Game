@@ -38,6 +38,14 @@ public class Player : MonoBehaviour {
 
     public void ResetMoves() {
         this.remainingPieceMoves = initPieceMoves;
+        StatusHost host = GetComponent<StatusHost>();
+        foreach (StatusEffect effect in host.getEffects()) {
+            Debug.Log("Effect: " + effect.effectName);
+            // Extra turns
+            if (effect.id == CardId.N_HPTHDL) {
+                this.remainingPieceMoves = (int)effect.power;
+            }
+        }
     }
 
     public void AddPieceToStock(PieceData piece) {
@@ -62,5 +70,19 @@ public class Player : MonoBehaviour {
 
     public void RemoveImbueCard(CardDisplay card) {
         imbuedCards.Remove(card);
+    }
+
+    public int GetTotalMoveRange() {
+        int totalMoves = remainingPieceMoves;
+
+        StatusHost host = GetComponent<StatusHost>();
+        foreach (StatusEffect effect in host.getEffects()) {
+            // Homeopathic Delusion
+            if (effect.id == CardId.N_HPTHDL) {
+                return (int)effect.power;
+            }
+        }
+
+        return totalMoves;
     }
 }
