@@ -82,15 +82,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""TestCamAngle"",
-                    ""type"": ""Button"",
-                    ""id"": ""9065f969-7a37-407d-abd9-311a2bde2075"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Zoom"",
                     ""type"": ""Value"",
                     ""id"": ""b708635e-dc6e-460e-99b3-1c06e88193a6"",
@@ -98,6 +89,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""DragCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""3b8d7955-29e7-44ff-9a16-d6ca9b3480f4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -246,23 +246,23 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""7b002d91-0ee2-47e6-90f1-fd80f120887a"",
-                    ""path"": ""<Keyboard>/m"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""TestCamAngle"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""964e9316-db2d-43aa-b9b9-5a510a711bda"",
                     ""path"": ""<Mouse>/scroll"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""85befe15-eff4-40bd-a2df-895e8c7eeff8"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DragCamera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -279,8 +279,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Point = m_Player.FindAction("Point", throwIfNotFound: true);
         m_Player_MenuSubmit = m_Player.FindAction("MenuSubmit", throwIfNotFound: true);
-        m_Player_TestCamAngle = m_Player.FindAction("TestCamAngle", throwIfNotFound: true);
         m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
+        m_Player_DragCamera = m_Player.FindAction("DragCamera", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -348,8 +348,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Point;
     private readonly InputAction m_Player_MenuSubmit;
-    private readonly InputAction m_Player_TestCamAngle;
     private readonly InputAction m_Player_Zoom;
+    private readonly InputAction m_Player_DragCamera;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -360,8 +360,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Point => m_Wrapper.m_Player_Point;
         public InputAction @MenuSubmit => m_Wrapper.m_Player_MenuSubmit;
-        public InputAction @TestCamAngle => m_Wrapper.m_Player_TestCamAngle;
         public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
+        public InputAction @DragCamera => m_Wrapper.m_Player_DragCamera;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -389,12 +389,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @MenuSubmit.started += instance.OnMenuSubmit;
             @MenuSubmit.performed += instance.OnMenuSubmit;
             @MenuSubmit.canceled += instance.OnMenuSubmit;
-            @TestCamAngle.started += instance.OnTestCamAngle;
-            @TestCamAngle.performed += instance.OnTestCamAngle;
-            @TestCamAngle.canceled += instance.OnTestCamAngle;
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
+            @DragCamera.started += instance.OnDragCamera;
+            @DragCamera.performed += instance.OnDragCamera;
+            @DragCamera.canceled += instance.OnDragCamera;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -417,12 +417,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @MenuSubmit.started -= instance.OnMenuSubmit;
             @MenuSubmit.performed -= instance.OnMenuSubmit;
             @MenuSubmit.canceled -= instance.OnMenuSubmit;
-            @TestCamAngle.started -= instance.OnTestCamAngle;
-            @TestCamAngle.performed -= instance.OnTestCamAngle;
-            @TestCamAngle.canceled -= instance.OnTestCamAngle;
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
+            @DragCamera.started -= instance.OnDragCamera;
+            @DragCamera.performed -= instance.OnDragCamera;
+            @DragCamera.canceled -= instance.OnDragCamera;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -448,7 +448,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnPoint(InputAction.CallbackContext context);
         void OnMenuSubmit(InputAction.CallbackContext context);
-        void OnTestCamAngle(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
+        void OnDragCamera(InputAction.CallbackContext context);
     }
 }

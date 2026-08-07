@@ -9,18 +9,27 @@ public class CameraManager : MonoBehaviour {
     public static CameraManager Instance;
     private Camera cam;
     public float tileSize = 1.0f;
-    public float topDownTargetX; // Target zoomed out X
-    public float topDownTargetZ; // Target zoomed out Z
+    public float targetX; // Target zoomed out X
+    public float targetY; // Target zoomed out Y
     public float orthoSize;
     private float mapWidth;
     private float mapHeight;
+    private Vector3 defaultZoomedOutPos;
 
     [Header("Zoom Settings")]
     public float zoomSpeed = .5f;
-    public float minZoom = 3f;
+    public float minZoom = 1f;
     public float maxZoom = 20f;
-    public float zoomDuration = .5f;
-    public float quickZoomDuration = .1f;
+    public float zoomDuration = 1.25f;
+
+    // Tracks the currently running zoom-in coroutine so we can cancel it
+    // instead of letting a new one run alongside it.
+    private Coroutine zoomCoroutine;
+
+    [Header("Drag Settings")]
+    public bool invertDrag = false; 
+    private bool isDragging = false;
+    private Vector3 dragOriginWorld;
 
     void Awake() {
         Instance = this;
@@ -29,12 +38,14 @@ public class CameraManager : MonoBehaviour {
 
     public void SetupCamera(int mapWidth, int mapHeight) {
         float centerX = (mapWidth - 1) * tileSize / 2f;
-        float centerZ = (mapHeight - 1) * tileSize / 2f;
-        topDownTargetX = centerX;
-        topDownTargetZ = centerZ;
+        float centerY = (mapHeight - 1) * tileSize / 2f;
+
+        defaultZoomedOutPos = new Vector3(centerX, centerY, -10);
+        transform.position = defaultZoomedOutPos;
+        targetX = centerX;
+        targetY = centerY;
         this.mapHeight = mapHeight;
         this.mapWidth = mapWidth;
-        transform.position = new Vector3(centerX, 45, centerZ);
         float maxDimension = Mathf.Max(mapWidth, mapHeight);
         Debug.Log("Max Dimension: " + maxDimension);
         if (cam == null) {
@@ -42,6 +53,7 @@ public class CameraManager : MonoBehaviour {
         }
         orthoSize = (maxDimension * tileSize) / 2f + 1f;
         maxZoom = orthoSize;
+        minZoom = .75f;
         cam.orthographicSize = orthoSize;
     }
 
@@ -51,6 +63,7 @@ public class CameraManager : MonoBehaviour {
         if (scroll != 0) {
             ApplyZoom(scroll);
         }
+        HandleDrag();
     }
 
     private void ApplyZoom(float scroll) {
@@ -58,15 +71,15 @@ public class CameraManager : MonoBehaviour {
         Vector3 mousePosBefore = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
         float currentX = cam.transform.position.x;
-        float currentZ = cam.transform.position.z;
+        float currentY = cam.transform.position.y;
         float xMove = 0f;
-        float zMove = 0f;
+        float yMove = 0f;
         float scrollsUntilAtTarget = 0f;
         if (scroll > 0) {
             if (cam.orthographicSize > minZoom) {
                 scrollsUntilAtTarget = (cam.orthographicSize - minZoom) / zoomSpeed + 1;
                 xMove = mousePosBefore.x;
-                zMove = mousePosBefore.z;
+                yMove = mousePosBefore.y;
 
                 if (xMove < 0f) {
                     xMove = 0f;
@@ -75,45 +88,47 @@ public class CameraManager : MonoBehaviour {
                     xMove = mapWidth;
                 }
 
-                if (zMove > mapHeight) {
-                    zMove = mapHeight;
+                if (yMove > mapHeight) {
+                    yMove = mapHeight;
                 }
-                else if (zMove < 0f) {
-                    zMove = 0f;
+                else if (yMove < 0f) {
+                    yMove = 0f;
                 }
 
-                // For an incremental zoom with mouse position, comment out coroutine and use
-                // cam.transform.position = new Vector3(xMove, 45, zMove);
-                // cam.orthographicSize -= zoomSpeed;
-
-                StartCoroutine(ZoomInRoutine(minZoom, new Vector3(xMove, 45, zMove)));
-                
+                if (zoomCoroutine != null) {
+                    StopCoroutine(zoomCoroutine);
+                }
+                zoomCoroutine = StartCoroutine(ZoomInRoutine(minZoom, new Vector3(xMove, yMove, -10)));
             }
         }
         // Zoom out
         else {
             if (cam.orthographicSize < maxZoom) {
-                // Based on where X and Z are when you zoom out, plus how far the player is from fully zooming out, shift the 
-                // X and Z to slowly move back to the original top position
-                scrollsUntilAtTarget = Mathf.Abs(orthoSize - cam.orthographicSize) / zoomSpeed;
-                if (currentX != topDownTargetX) {
-                    xMove = Mathf.Abs(currentX - topDownTargetX) / scrollsUntilAtTarget;
-                    xMove = (currentX >= topDownTargetX) ? xMove *= -1 : xMove;
+                if (zoomCoroutine != null) {
+                    StopCoroutine(zoomCoroutine);
+                    zoomCoroutine = null;
                 }
 
-                if (currentZ != topDownTargetZ) {
-                    zMove = Mathf.Abs(currentZ - topDownTargetZ) / scrollsUntilAtTarget;
-                    zMove = (currentZ >= topDownTargetZ) ? zMove *= -1 : zMove;
+                // Based on where X and Y are when you zoom out, plus how far the player is from fully zooming out, shift the 
+                // X and Y to slowly move back to the original top position
+                scrollsUntilAtTarget = Mathf.Abs(orthoSize - cam.orthographicSize) / zoomSpeed;
+                if (currentX != targetX) {
+                    xMove = Mathf.Abs(currentX - targetX) / scrollsUntilAtTarget;
+                    xMove = (currentX >= targetX) ? xMove *= -1 : xMove;
                 }
-                cam.transform.position += new Vector3(xMove, 0, zMove);
+
+                if (currentY != targetY) {
+                    yMove = Mathf.Abs(currentY - targetY) / scrollsUntilAtTarget;
+                    yMove = (currentY >= targetY) ? yMove *= -1 : yMove;
+                }
+                cam.transform.position += new Vector3(xMove, yMove, 0);
                 cam.orthographicSize += zoomSpeed;
-                //StartCoroutine(ZoomOutRoutine(cam.orthographicSize + zoomSpeed, new Vector3(xMove, 45, zMove)));
             }
         }
         mousePosBefore = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
     }
 
-    private IEnumerator ZoomInRoutine(float targetSize, Vector3 xzTarget) {
+    private IEnumerator ZoomInRoutine(float targetSize, Vector3 xyTarget) {
         float startSize = cam.orthographicSize;
         float elapsedTime = 0f;
         Vector3 startPosition = cam.transform.position;
@@ -122,48 +137,80 @@ public class CameraManager : MonoBehaviour {
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / zoomDuration);
 
-            // Apply a smooth step if you want to ease in and out
             t = Mathf.SmoothStep(0, 1, t);
-            transform.position = Vector3.Lerp(startPosition, xzTarget, t);
+            transform.position = Vector3.Lerp(startPosition, xyTarget, t);
             cam.orthographicSize = Mathf.Lerp(startSize, targetSize, t);
-            //cam.transform.position = Mathf.Lerp
             yield return null;
         }
-        cam.transform.position = xzTarget;
-        cam.orthographicSize = targetSize; // Ensure it lands exactly on the target
+        cam.transform.position = xyTarget;
+        cam.orthographicSize = targetSize;
+        zoomCoroutine = null;
     }
 
-    private IEnumerator ZoomOutRoutine(float targetSize, Vector3 xzTarget) {
-        float startSize = cam.orthographicSize;
-        float elapsedTime = 0f;
-        Vector3 startPosition = cam.transform.position;
+    private void HandleDrag() {
+        if (Mouse.current == null) return;
 
-        while (elapsedTime < quickZoomDuration) {
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / quickZoomDuration);
-
-            // Apply a smooth step if you want to ease in and out
-            t = Mathf.SmoothStep(0, 1, t);
-            transform.position = Vector3.Lerp(startPosition, xzTarget, t);
-            cam.orthographicSize = Mathf.Lerp(startSize, targetSize, t);
-            //cam.transform.position = Mathf.Lerp
-            yield return null;
+        if (InputManager.Controls.Player.DragCamera.inProgress) {
+            if (!isDragging) {
+                if (zoomCoroutine != null) {
+                    StopCoroutine(zoomCoroutine);
+                    zoomCoroutine = null;
+                }
+                dragOriginWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            }
+            isDragging = true;
         }
-        cam.transform.position = xzTarget;
-        cam.orthographicSize = targetSize; // Ensure it lands exactly on the target
+        else {
+            isDragging = false;
+        }
+
+        Collider2D hit = Physics2D.OverlapPoint(dragOriginWorld);
+        if (hit != null) {
+            if (hit.tag != null) {
+                if (hit.CompareTag("Piece")) {
+                    isDragging = false;
+                }
+            }
+        }
+
+        if (!isDragging) return;
+
+        Vector3 currentMouseWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 delta = dragOriginWorld - currentMouseWorld;
+        if (invertDrag) delta = -delta;
+
+        Vector3 newPos = cam.transform.position + delta;
+        newPos.z = cam.transform.position.z;
+        //newPos = ClampCameraPosition(newPos);
+        cam.transform.position = newPos;
+        dragOriginWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
     }
 
-    public void SetAngle(CameraAngle angle) {
-        Debug.Log("Switching camera angle to " + angle);
-        switch (angle) {
-            case CameraAngle.TopDown:
-                transform.rotation = Quaternion.Euler(90, 0, 0);
-                cam.transform.localPosition = new Vector3(topDownTargetX, 10, topDownTargetZ);
-                break;
-            case CameraAngle.Corner1:
-                transform.rotation = Quaternion.Euler(45, 45, 0);
-                cam.transform.localPosition = new Vector3(0, orthoSize, 0);
-                break;
-        }
+    public void ResetToDefaultView() {
+        transform.position = defaultZoomedOutPos;
+        cam.orthographicSize = orthoSize;
+    }
+
+    private Vector3 ClampCameraPosition(Vector3 pos) {
+        float vertExtent = cam.orthographicSize;
+        float horzExtent = vertExtent * cam.aspect;
+
+        // Map world bounds, matching the centering math used in SetupCamera:
+        // tiles run from 0 to (mapWidth-1)/(mapHeight-1), padded by half a tile
+        // on each side.
+        float mapMinX = -tileSize / 2f;
+        float mapMaxX = (mapWidth - 1) * tileSize + tileSize / 2f;
+        float mapMinY = -tileSize / 2f;
+        float mapMaxY = (mapHeight - 1) * tileSize + tileSize / 2f;
+
+        float minX = mapMinX + horzExtent;
+        float maxX = mapMaxX - horzExtent;
+        float minY = mapMinY + vertExtent;
+        float maxY = mapMaxY - vertExtent;
+
+        float clampedX = (minX <= maxX) ? Mathf.Clamp(pos.x, minX, maxX) : targetX;
+        float clampedY = (minY <= maxY) ? Mathf.Clamp(pos.y, minY, maxY) : targetY;
+
+        return new Vector3(clampedX, clampedY, pos.z);
     }
 }

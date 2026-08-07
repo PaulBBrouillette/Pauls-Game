@@ -38,7 +38,7 @@ public class GridManager : MonoBehaviour {
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
                     validIndex = false;
-                    GameObject tileGO = Instantiate(tilePrefab, new Vector3(j, 0, i), Quaternion.identity);
+                    GameObject tileGO = Instantiate(tilePrefab, new Vector3(j, i, 0), Quaternion.identity);
 
                     tileGO.transform.parent = this.transform;
 
@@ -74,34 +74,35 @@ public class GridManager : MonoBehaviour {
         else {
             // 1. Generate the data beforehand
             Team[,] generatedMap = GenerateMapData(mapWidth, mapHeight, teamNumber);
-            int red = 0;
-            int blue = 0;
-            int green = 0;
-            int yellow = 0;
+            int one = 0;
+            int two = 0;
+            int three = 0;
+            int four = 0;
             foreach (Team i in generatedMap) {
-                if (i == Team.One) red++;
-                if (i == Team.Two) blue++;
-                if (i == Team.Three) green++;
-                if (i == Team.Four) yellow++;
+                if (i == Team.One) one++;
+                if (i == Team.Two) two++;
+                if (i == Team.Three) three++;
+                if (i == Team.Four) four++;
             }
-            Debug.Log($"{red} {blue} {green} {yellow}");
+            Debug.Log($"{one} {two} {three} {four}");
 
-            for (int y = 0; y < mapHeight; y++) {
-                for (int x = 0; x < mapWidth; x++) {
-                    GameObject tileGO = Instantiate(tilePrefab, new Vector3(x, 0, y), Quaternion.identity);
+            for (int i = 0; i < mapHeight; i++) {
+                for (int j = 0; j < mapWidth; j++) {
+                    GameObject tileGO = Instantiate(tilePrefab, new Vector3(j, i, 0), Quaternion.identity);
                     Tile tileScript = tileGO.GetComponent<Tile>();
                     tileGO.transform.parent = this.transform;
-                    tileGO.name = $"Tile_{y}_{x}";
+                    tileGO.name = $"Tile_{i}_{j}";
+                    Debug.Log(tileGO.transform.position);
                     // Use [x, y] to match the [width, height] definition
                     // If your array was defined as [width, height], use [x, y]
-                    tileScript.setTeam(generatedMap[x, y]);
+                    tileScript.setTeam(generatedMap[j, i]);
 
-                    tileScript.gridPos = new Vector2Int(x, y);
-                    map[y, x] = tileScript;
+                    tileScript.gridPos = new Vector2Int(j, i);
+                    map[i, j] = tileScript;
                 }
             }
             // Assign num tiles to each player
-            GameplayManager.Instance.AssignTileAmtsToPlayers(red, blue, green, yellow);
+            GameplayManager.Instance.AssignTileAmtsToPlayers(one, two, three, four);
         }
 
         AssignNeighbors();

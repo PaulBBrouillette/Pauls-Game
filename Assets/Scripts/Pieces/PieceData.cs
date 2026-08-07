@@ -16,4 +16,5 @@ public class PieceData : ScriptableObject {
     public List<int> dice = new List<int>(); // A list of dice, with the ints being the number of sides of each die
     public string id; // Unique identifier for this piece type
     public Rank rank;
+    public List<CardData> initCards;
 }

@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01c4415c7caab6439ddf3a35e1ccb02, type: 3}
-  m_Name: Knight
+  m_Name: ShinyAbe
   m_EditorClassIdentifier: 
   pieceName: Knight
-  cost: 72
+  cost: 22
   modelPrefab: {fileID: 2388225570489705903, guid: 60e5e72d834a8ba41b840a5fdd7a4619, type: 3}
   shopIcon: {fileID: 21300000, guid: 6922dae4d801d7f40bb4b5ce77da28fb, type: 3}
-  costMultiplier: 2.1
-  mvRgMultiplier: 0.35
+  costMultiplier: 1.8
+  mvRgMultiplier: 0.25
   initMaxHealth: 35
-  moveRange: 14
-  dice: 060000000500000004000000
+  moveRange: 4
+  dice: 0400000005000000
   id: 
-  rank: 1
+  rank: 0
+  initCards:
+  - {fileID: 11400000, guid: 1aa174313d1de76408da16cac1fc1507, type: 2}

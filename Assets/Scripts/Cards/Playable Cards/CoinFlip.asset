@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6badfc98f6be0448d394ffdd4054ab, type: 3}
-  m_Name: HomeopathicDelusion
+  m_Name: CoinFlip
   m_EditorClassIdentifier: 
-  cardName: Homeopathic Delusion
+  cardName: Coin Flip
   context: 0
-  targetType: 6
+  targetType: 0
   cardType: 0
   actions:
-  - rid: 537194450897600514
-  turnDuration: 3
-  existsUntilDestroyed: 0
+  - rid: 6952894911302598656
+  turnDuration: -1
+  existsUntilDestroyed: 1
   id: 
   shopIcon: {fileID: 0}
-  cost: 23
+  cost: 27
   costMultiplier: 2.25
   effectAmount: 0
   rank: 1
   references:
     version: 2
     RefIds:
-    - rid: 537194450897600514
-      type: {class: SetPlayerMoves, ns: , asm: Assembly-CSharp}
+    - rid: 6952894911302598656
+      type: {class: CoinFlip, ns: , asm: Assembly-CSharp}
       data: 

@@ -4,5 +4,6 @@ public enum CardId {
     AB_KLLER, // Killer
     N_XTRTRN, // Extra Turns
     N_BIND, // Bind
-    N_HPTHDL // Homeopathic Delusion
+    N_HPTHDL, // Homeopathic Delusion
+    N_CONFLP // Coin Flip
 }

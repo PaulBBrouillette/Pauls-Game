@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,16 +16,16 @@ public class Tile : MonoBehaviour
 
     public Team team;
     public Vector2Int gridPos;
-    private Renderer rend;
+
+    public SpriteRenderer baseRenderer;
+    public SpriteRenderer overlayRenderer;
 
     void Start() {
-        rend = GetComponent<Renderer>();   
+        baseRenderer = GetComponent<SpriteRenderer>();   
     }
 
     public List<Piece> GetAllPiecesOnTile() {
         List<Piece> pieces = new List<Piece>();
-        // Check all 4 sides. Remember: we check the specific occupant 
-        // slot (A or B) that belongs to THIS tile.
         AddOccupant(topSide, pieces);
         AddOccupant(bottomSide, pieces);
         AddOccupant(leftSide, pieces);
@@ -42,14 +41,9 @@ public class Tile : MonoBehaviour
 
     public void setTeam(Team team) {
         this.team = team;
-        rend = GetComponent<Renderer>();
-        if (rend != null) {
-            switch (team) {
-                case (Team.One): rend.material.color = Color.red; break;
-                case (Team.Two): rend.material.color = Color.blue; break;
-                case (Team.Three): rend.material.color = Color.yellow; break;
-                case (Team.Four): rend.material.color = Color.green; break;
-            }
+        baseRenderer = GetComponent<SpriteRenderer>();
+        if (baseRenderer != null) {
+            baseRenderer.color = TeamColorHelper.GetTeamColor(team);
         }
     }
 }

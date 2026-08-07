@@ -42,7 +42,7 @@ public class GameplayManager : MonoBehaviour {
     public Player currentPlayerScript;
 
     [Header("Settings")]
-    public int playerCount; // Number of 
+    public int playerCount; // Number of current players
     public float pieceOffset = 0.25f; // Distance a piece is offset from the tile edge, .25f for now
 
     [Header("Shop Settings")]
@@ -93,7 +93,7 @@ public class GameplayManager : MonoBehaviour {
         public TileSide side;
         public bool isTileA;
         public bool isOccupied;
-        public Vector3 worldPoint;
+        public Vector2 worldPoint;
     }
     PointerInfo info;
 
@@ -177,7 +177,7 @@ public class GameplayManager : MonoBehaviour {
                 activeGhost.SetActive(false);
 
                 // Transition to Move if we grab a piece
-                if (InputManager.Controls.Player.Select.triggered && TryGrabPiece(info)) {
+                if (InputManager.Controls.Player.Select.WasPressedThisFrame() && TryGrabPiece(info)) {
                     if (currentMovingPiece != null) {
                         TogglePieceColliders(false);
                     }
@@ -378,9 +378,12 @@ public class GameplayManager : MonoBehaviour {
                 // When a existing piece is able to reach a piece of an opposing team, the attacker and defender are locked
                 // into a battle scene where dice are rolled, any abilities and cards are used and the loser is destroyed
             case TurnPhase.Attack:
+                // Wait until CombatManager finishes
+                /*
                 if (InputManager.Controls.Player.BattleAdvance.WasPressedThisFrame()) {
                     CombatManager.Instance.Attack(attackerPiece, defenderPiece, isSneakAttack);
                 }
+                */
                 break;
 
             case TurnPhase.BattleStart:
@@ -388,6 +391,7 @@ public class GameplayManager : MonoBehaviour {
                 attackerIcon.sprite = attackerPiece.data.shopIcon;
                 defenderIcon.sprite = defenderPiece.data.shopIcon;
                 mainUIPanel.SetActive(false);
+                CombatManager.Instance.BeginCombat(attackerPiece, defenderPiece, isSneakAttack);
                 SetPhase(TurnPhase.Attack);
                 break;
 
@@ -474,13 +478,15 @@ public class GameplayManager : MonoBehaviour {
         Vector3 spawnPos = DetermineOffset(tile, direction);
 
         GameObject pPrefab = null;
-
+        pPrefab = piecePrefab;
+        /* 
         if (selectedPieceToBuy.modelPrefab == null) {
             pPrefab = piecePrefab;
         }
         else {
             pPrefab = selectedPieceToBuy.modelPrefab;
         }
+        */
 
         GameObject pieceGO = Instantiate(pPrefab, spawnPos, Quaternion.identity);
 
@@ -512,6 +518,18 @@ public class GameplayManager : MonoBehaviour {
                 }
             }
         }
+
+        // Init imbued cards
+        Debug.Log("Init card");
+        if (p.data.initCards != null && p.data.initCards.Count > 0) {
+            foreach (CardData card in p.data.initCards) {
+                card.PlayCard(currentPlayerScript, null, p, null, null, null);
+            }
+        }
+        else {
+            Debug.Log("Something is null");
+        }
+
         if (roundOneOver) {
             SetPhase(TurnPhase.Wait);
         }
@@ -540,6 +558,8 @@ public class GameplayManager : MonoBehaviour {
     /// and the current phase allows it
     /// </summary>
     /// <returns>Returns true if the piece can be grabbed and move, false otherwise</returns>
+    
+    /*
     private bool TryGrabPiece(PointerInfo info) {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         if (Physics.Raycast(ray, out RaycastHit hit)) {
@@ -556,6 +576,22 @@ public class GameplayManager : MonoBehaviour {
         }
         return false;
     }
+    */
+
+    private bool TryGrabPiece(PointerInfo info) {
+        Collider2D hit = Physics2D.OverlapPoint(info.worldPoint);
+        if (hit != null && hit.GetComponent<Piece>() != null) {
+            Piece p = hit.GetComponent<Piece>();
+            if (p != null && p.getTeam() == currentPlayerScript.getTeam()) {
+                currentMovingPiece = hit.gameObject;
+                originalPieceLocation = currentMovingPiece.transform.position;
+                GetTouchingTiles(currentMovingPiece.GetComponent<Piece>().currentTile);
+                debugReachable = GetReachableWithCost(p.currentSide, p.getTotalMoveRange());
+                return true;
+            }
+        }
+        return false;
+    }
 
     /// <summary>
     /// Make the piece follow the mouse when it is being moved. If the mouse goes off the board, snap it back to its original position
@@ -566,7 +602,7 @@ public class GameplayManager : MonoBehaviour {
                 currentMovingPiece.transform.position = originalPieceLocation;
             }
             else {
-                currentMovingPiece.transform.position = new Vector3(info.worldPoint.x, 0.5f, info.worldPoint.z);
+                currentMovingPiece.transform.position = new Vector3(info.worldPoint.x, info.worldPoint.y, 0.5f);
             }
         }
     }
@@ -798,10 +834,10 @@ public class GameplayManager : MonoBehaviour {
     /// <returns>Vector3 position of where this piece stands</returns>
     private Vector3 DetermineOffset(Tile tile, Direction direction) {
         switch (direction) {
-            case Direction.Top: return new Vector3(tile.transform.position.x, 1, tile.transform.position.z + pieceOffset);
-            case Direction.Bottom: return new Vector3(tile.transform.position.x, 1, tile.transform.position.z - pieceOffset);
-            case Direction.Left: return new Vector3(tile.transform.position.x - pieceOffset, 1, tile.transform.position.z);
-            case Direction.Right: return new Vector3(tile.transform.position.x + pieceOffset, 1, tile.transform.position.z);
+            case Direction.Top: return new Vector3(tile.transform.position.x, tile.transform.position.y + pieceOffset, 0);
+            case Direction.Bottom: return new Vector3(tile.transform.position.x, tile.transform.position.y - pieceOffset, 0);
+            case Direction.Left: return new Vector3(tile.transform.position.x - pieceOffset, tile.transform.position.y, 0);
+            case Direction.Right: return new Vector3(tile.transform.position.x + pieceOffset, tile.transform.position.y, 0);
             default: return new Vector3(0, 0, 0);
         }
     }
@@ -959,7 +995,7 @@ public class GameplayManager : MonoBehaviour {
             avg += tileOrder[i];
         }
         initAvgTiles = avg / playerCount;
-        basePrice = (int)Mathf.Floor((float)((initAvgTiles / playerCount) * .88));
+        basePrice = (int)Mathf.Ceil((float)((initAvgTiles / playerCount) * .88)) + 1;
     }
 
     /// <summary>
@@ -969,10 +1005,10 @@ public class GameplayManager : MonoBehaviour {
     private Vector3 GetWorldPosition(Tile tile, Direction dir) {
         Vector3 pos = tile.transform.position;
         switch (dir) {
-            case Direction.Top: return new Vector3(pos.x, 0, pos.z + pieceOffset);
-            case Direction.Bottom: return new Vector3(pos.x, 0, pos.z - pieceOffset);
-            case Direction.Left: return new Vector3(pos.x - pieceOffset, 0, pos.z);
-            case Direction.Right: return new Vector3(pos.x + pieceOffset, 0, pos.z);
+            case Direction.Top: return new Vector3(pos.x, pos.y + pieceOffset, 0);
+            case Direction.Bottom: return new Vector3(pos.x, pos.y - pieceOffset, 0);
+            case Direction.Left: return new Vector3(pos.x - pieceOffset, pos.y, 0);
+            case Direction.Right: return new Vector3(pos.x + pieceOffset, pos.y, 0);
             default: return pos;
         }
     }
@@ -1068,30 +1104,43 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
+    private String pString(PointerInfo info) {
+        if (info.tile == null) return "null";
+        return info.tile.name + " " + info.direction;
+    }
+
     /// <summary>
     /// Return info based on where the mouse currently is. See <see cref="PointerInfo"/> for data that is returned
     /// </summary>
     private PointerInfo GetPointerInfo() {
         PointerInfo info = new PointerInfo { direction = Direction.None };
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        if (Physics.Raycast(ray, out RaycastHit hit)) {
-            info.worldPoint = hit.point;
-            info.tile = hit.collider.GetComponent<Tile>();
+        Vector2 mouseWorld =
+            Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+
+        info.worldPoint = mouseWorld;
+
+        Collider2D hit = Physics2D.OverlapPoint(mouseWorld);
+
+        if (hit != null) {
+            info.tile = hit.GetComponent<Tile>();
 
             if (info.tile != null) {
-                // Calculate Direction
-                Vector3 localPos = hit.point - info.tile.transform.position;
-                if (Mathf.Abs(localPos.x) > Mathf.Abs(localPos.z))
+                Vector2 localPos =
+                    mouseWorld - (Vector2)info.tile.transform.position;
+
+                if (Mathf.Abs(localPos.x) > Mathf.Abs(localPos.y))
                     info.direction = localPos.x > 0 ? Direction.Right : Direction.Left;
                 else
-                    info.direction = localPos.z > 0 ? Direction.Top : Direction.Bottom;
+                    info.direction = localPos.y > 0 ? Direction.Top : Direction.Bottom;
 
-                // Get Side Data
                 info.side = GetSide(info.tile, info.direction);
+
                 if (info.side != null) {
-                    info.isTileA = (info.side.tileA == info.tile);
-                    info.isOccupied = info.isTileA ? (info.side.occupantA != null) : (info.side.occupantB != null);
+                    info.isTileA = info.side.tileA == info.tile;
+                    info.isOccupied = info.isTileA
+                        ? info.side.occupantA != null
+                        : info.side.occupantB != null;
                 }
             }
         }
@@ -1157,10 +1206,10 @@ public class GameplayManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// Turns on each piece's CapsuleCollider if toggle is true and vice versa
+    /// Turns on each piece's BoxCollider2D if toggle is true and vice versa
     /// </summary>
     private void TogglePieceColliders(bool toggle) {
-        foreach (Piece p in piecesOnBoard) { p.GetComponent<CapsuleCollider>().enabled = toggle; }
+        foreach (Piece p in piecesOnBoard) { p.GetComponent<BoxCollider2D>().enabled = toggle; }
     }
 
     #endregion

@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Piece : MonoBehaviour
 {
     public Team team;
-    public PieceElement element;
     public PieceData data;
     public TileSide currentSide;
     public bool isOnSideA; // corresponds to occupantA vs occupantB
@@ -25,13 +23,6 @@ public class Piece : MonoBehaviour
 
     public void setTeam(Team team) {
         this.team = team;
-    }
-    public PieceElement getElement() {
-        return element;
-    }
-
-    public void SetElement(PieceElement element) {
-        this.element = element;
     }
 
     public void SetPosition(TileSide side, bool isA) {
@@ -69,7 +60,7 @@ public class Piece : MonoBehaviour
         for (int i = 0; i < total.Length; i++) {
             total[i] = Random.Range(1, data.dice[i] + 1);
         }
-
+        
         return total;
     }
 }
