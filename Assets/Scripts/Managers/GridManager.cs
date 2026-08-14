@@ -84,7 +84,6 @@ public class GridManager : MonoBehaviour {
                 if (i == Team.Three) three++;
                 if (i == Team.Four) four++;
             }
-            Debug.Log($"{one} {two} {three} {four}");
 
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
@@ -92,7 +91,6 @@ public class GridManager : MonoBehaviour {
                     Tile tileScript = tileGO.GetComponent<Tile>();
                     tileGO.transform.parent = this.transform;
                     tileGO.name = $"Tile_{i}_{j}";
-                    Debug.Log(tileGO.transform.position);
                     // Use [x, y] to match the [width, height] definition
                     // If your array was defined as [width, height], use [x, y]
                     tileScript.setTeam(generatedMap[j, i]);

@@ -195,7 +195,7 @@ public class GameplayManager : MonoBehaviour {
                 if (InputManager.Controls.Player.Unselect.triggered) {
                     SetPhase(TurnPhase.Wait);
                 }
-                if (InputManager.Controls.Player.Select.triggered && info.tile != null && !info.isOccupied) {
+                if (InputManager.Controls.Player.Select.triggered && info.tile != null && !info.isOccupied && info.tile.team == currentPlayerScript.team) {
                     PlacePiece(info.tile, info.direction, info.isTileA, info.side);
                 }
                 break;

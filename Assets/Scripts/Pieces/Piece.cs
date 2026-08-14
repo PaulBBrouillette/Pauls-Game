@@ -14,7 +14,6 @@ public class Piece : MonoBehaviour
         this.data = data;
         movesRemaining = data.moveRange;
         setTeam(team);
-        GameObject visuals = Instantiate(data.modelPrefab, transform);
     }
 
     public Team getTeam() {

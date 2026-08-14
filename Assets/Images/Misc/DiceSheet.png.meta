@@ -114,7 +114,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 64
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -135,7 +135,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 64
-        y: 64
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -156,7 +156,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 128
-        y: 64
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -177,7 +177,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 192
-        y: 64
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -198,7 +198,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 256
-        y: 64
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -219,7 +219,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 320
-        y: 64
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -239,8 +239,8 @@ TextureImporter:
       name: DiceSheet_6
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 384
+        y: 128
         width: 64
         height: 64
       alignment: 0
@@ -260,8 +260,8 @@ TextureImporter:
       name: DiceSheet_7
       rect:
         serializedVersion: 2
-        x: 64
-        y: 0
+        x: 0
+        y: 64
         width: 64
         height: 64
       alignment: 0
@@ -281,8 +281,8 @@ TextureImporter:
       name: DiceSheet_8
       rect:
         serializedVersion: 2
-        x: 128
-        y: 0
+        x: 64
+        y: 64
         width: 64
         height: 64
       alignment: 0
@@ -302,8 +302,8 @@ TextureImporter:
       name: DiceSheet_9
       rect:
         serializedVersion: 2
-        x: 192
-        y: 0
+        x: 128
+        y: 64
         width: 64
         height: 64
       alignment: 0
@@ -323,8 +323,8 @@ TextureImporter:
       name: DiceSheet_10
       rect:
         serializedVersion: 2
-        x: 256
-        y: 0
+        x: 192
+        y: 64
         width: 64
         height: 64
       alignment: 0
@@ -344,8 +344,8 @@ TextureImporter:
       name: DiceSheet_11
       rect:
         serializedVersion: 2
-        x: 320
-        y: 0
+        x: 256
+        y: 64
         width: 64
         height: 64
       alignment: 0
@@ -357,6 +357,195 @@ TextureImporter:
       bones: []
       spriteID: 6622213162e597545bfdb4de9b02dd20
       internalID: -1664698624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_12
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 64
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b9cf565e2c83e01428bb988e56f48aeb
+      internalID: -1138835878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_13
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 64
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b7a66ae1cab6a9f49b4b3bd7bfb6d9b4
+      internalID: 1031756941
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bd13c40be9748fc4da260cfa12408857
+      internalID: 154641281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_15
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0396395c806edbe46be1f5a880e65206
+      internalID: 1245918430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_16
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f535e34a6863ed438e55fb52c61ec13
+      internalID: 1774786516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_17
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c98f09a1d6ccf0a499b6d7ddbe414f82
+      internalID: -1364456593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_18
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a3461e5981bcb1744b025db059ac64f8
+      internalID: -2130978869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_19
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 05d73f135866c6942bf0f304192d3853
+      internalID: -588616874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DiceSheet_20
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bb654683d1e8e634391dc0a35ec84a54
+      internalID: 771827632
       vertices: []
       indices: 
       edges: []
@@ -376,7 +565,16 @@ TextureImporter:
       DiceSheet_1: -2066328103
       DiceSheet_10: 243644302
       DiceSheet_11: -1664698624
+      DiceSheet_12: -1138835878
+      DiceSheet_13: 1031756941
+      DiceSheet_14: 154641281
+      DiceSheet_15: 1245918430
+      DiceSheet_16: 1774786516
+      DiceSheet_17: -1364456593
+      DiceSheet_18: -2130978869
+      DiceSheet_19: -588616874
       DiceSheet_2: -1002811659
+      DiceSheet_20: 771827632
       DiceSheet_3: 387729074
       DiceSheet_4: 1937177491
       DiceSheet_5: 202199408

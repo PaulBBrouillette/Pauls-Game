@@ -1,12 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 public class CombatManager : MonoBehaviour {
     public static CombatManager Instance;
-    private enum CombatPhase { Start, During, RollingDice, AfterDiceTest, End, Inactive }
+    private enum CombatPhase { Start, WaitForInput, RollingDice, NoInputAllowed, End, Inactive }
     private CombatPhase phase;
 
     [SerializeField] private TextMeshProUGUI atkDiceText;
@@ -14,9 +14,10 @@ public class CombatManager : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI atkHealthText;
     [SerializeField] private TextMeshProUGUI dfdHealthText;
     [SerializeField] private TextMeshProUGUI resultText;
-    private Piece attacker;
-    private Piece defender;
+    [SerializeField] private GameObject UIDie;
+    private Piece attacker, defender;
     private bool isSneakAttack;
+    private StatusHost aHost, dHost, thisHost, otherHost;
     void Awake() {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
@@ -27,6 +28,8 @@ public class CombatManager : MonoBehaviour {
         this.attacker = attacker;
         this.defender = defender;
         this.isSneakAttack = isSneakAttack;
+        aHost = attacker.GetComponent<StatusHost>();
+        dHost = defender.GetComponent<StatusHost>();
         phase = CombatPhase.Start;
     }
 
@@ -34,11 +37,13 @@ public class CombatManager : MonoBehaviour {
         switch (phase) {
             case CombatPhase.Start:
                 ExecutePreBattlePhase(attacker, defender);
+                // Probably also do some sort of animations regarding pieces' cards and their relevant effects
                 break;
 
-            case CombatPhase.During:
+            // Wait for players to do stuff
+            case CombatPhase.WaitForInput:
                 if (InputManager.Controls.Player.BattleAdvance.WasPressedThisFrame()) {
-                    Attack(attacker, defender, isSneakAttack);
+                    phase = CombatPhase.RollingDice;
                 }
                 break;
 
@@ -46,92 +51,168 @@ public class CombatManager : MonoBehaviour {
                 break;
 
             case CombatPhase.RollingDice:
-
+                int[] atkDice = attacker.RollTheDice();
+                int[] dfdDice = defender.RollTheDice();
+                phase = CombatPhase.NoInputAllowed;
+                StartCoroutine(ResolveCombatSequence(attacker, defender, atkDice, dfdDice, isSneakAttack));
                 break;
 
-            case CombatPhase.AfterDiceTest:
-                Debug.Log("After Dice Test");
-                break;
+            case CombatPhase.NoInputAllowed:
 
+                break;
+            
             case CombatPhase.Inactive:
                 break;
         }
     }
 
-    public void Attack(Piece attacker, Piece defender, bool isSneakAttack) {
-        Debug.Log("--- Combat Initiated ---");
-
-        // 2. MID-BATTLE PHASE: Handle dice rolls, math calculations, and on-roll cards (Coin Flips)
-        float attackerDmg = 0f;
-        float defenderDmg = 0f;
-        ExecuteMidBattlePhase(attacker, defender, isSneakAttack, out attackerDmg, out defenderDmg);
-
-        // 3. DAMAGE APPLICATION: Apply calculated values to health pools
-        ApplyDamage(attacker, defender, attackerDmg, defenderDmg);
-
-        // 4. POST-BATTLE PHASE: Process survival abilities, clean up dead pieces, and update UI
-        bool battleDone = ExecutePostBattlePhase(attacker, defender);
-
-        if (battleDone) {
-            ShowResult(attacker, defender);
-            GameplayManager.Instance.SetPhase(TurnPhase.BattleEnd);
-            phase = CombatPhase.Inactive;
-        }
-
-        Debug.Log("--- Combat Ended ---");
-    }
-
     private void ExecutePreBattlePhase(Piece attacker, Piece defender) {
         Debug.Log("Pre-Battle Phase: Checking initialization cards...");
-        // Place any effects that trigger before rolling cards/dice here
         resultText.text = "Press Space to roll!";
         UpdateUI(attacker, defender);
-        phase = CombatPhase.During;
-    }
-
-    private void ExecuteMidBattlePhase(Piece attacker, Piece defender, bool isSneakAttack, out float attackerDmg, out float defenderDmg) {
-        int[] atkDice = attacker.RollTheDice();
-        int[] dfdDice = defender.RollTheDice();
-
-        attackerDmg = atkDice.Sum();
-        defenderDmg = dfdDice.Sum();
-
-        // Evaluate mid-battle cards/status effects for both participants
-        attackerDmg = EvaluateMidBattleEffects(attacker, attackerDmg);
-        defenderDmg = EvaluateMidBattleEffects(defender, defenderDmg);
-
-        if (isSneakAttack) {
-            attackerDmg *= 1.5f;
-            Debug.Log("Sneak Attack applied: x1.5 damage");
-        }
-        UpdateDiceDisplayText(attacker, defender, atkDice, dfdDice, isSneakAttack);
+        phase = CombatPhase.WaitForInput;
     }
 
     private float EvaluateMidBattleEffects(Piece piece, float baseDamage) {
-        StatusHost host = piece.GetComponent<StatusHost>();
-        if (host == null) return baseDamage;
+        if (piece == attacker) {
+            thisHost = aHost;
+            otherHost = dHost;
+        }
+        else {
+            thisHost = dHost;
+            otherHost = aHost;
+        }
 
+        // Look at the piece who is rolling right now
         float modifiedDamage = baseDamage;
-        foreach (StatusEffect effect in host.getEffects()) {
+        foreach (StatusEffect effect in thisHost.getEffects()) {
             if (effect.id == CardId.N_CONFLP) {
                 if (UnityEngine.Random.Range(0, 2) == 0) {
                     modifiedDamage *= 2.0f;
-                    Debug.Log($"{piece.name} Coin Flip: x2");
                 }
                 else {
-                    modifiedDamage *= 0.25f;
-                    Debug.Log($"{piece.name} Coin Flip: x0.25");
+                    modifiedDamage *= .25f;
                 }
             }
         }
-        return modifiedDamage;
+
+        // Now look at the piece getting attacked and see if they will modify damage
+        foreach (StatusEffect effect in otherHost.getEffects()) {
+
+        }
+        return Mathf.CeilToInt(modifiedDamage);
     }
 
-    private void ApplyDamage(Piece attacker, Piece defender, float attackerDmg, float defenderDmg) {
-        attacker.currentHealth -= defenderDmg;
-        defender.currentHealth -= attackerDmg;
+    public IEnumerator ResolveCombatSequence(Piece attacker, Piece defender, int[] atkDice, int[] dfdDice, bool isSneakAttack) {
+        RectTransform dfdHealthTxt = dfdHealthText.GetComponent<RectTransform>();
+        TargetShaker dfdShaker = dfdHealthText.GetComponent<TargetShaker>();
+        RectTransform atkHealthTxt = atkHealthText.GetComponent<RectTransform>();
+        TargetShaker atkShaker = atkHealthText.GetComponent<TargetShaker>();
 
-        Debug.Log($"Attacker Health: {attacker.currentHealth} | Defender Health: {defender.currentHealth}");
+        foreach (float rolledValue in atkDice) {
+            GameObject die = Instantiate(UIDie, new Vector2(100f, 100f), Quaternion.identity);
+            die.transform.SetParent(atkDiceText.transform.parent, false);
+            DiceUI ds = die.GetComponent<DiceUI>();
+            int original = Mathf.CeilToInt(rolledValue);
+            int final = original;
+            
+            //total = EvaluateMidBattleEffects(attacker, total);
+            List<CardEffectData> effects = GetCardEffectsForDie(attacker);
+            if (isSneakAttack) {
+                effects.Add(new CardEffectData { cardName = "Sneak Attack", multiplier = 1.5f, displayColor = Color.green });
+            }
+            if (effects.Count > 0) {
+                foreach (CardEffectData effect in effects) {
+                    final = Mathf.CeilToInt(final * effect.multiplier);
+                }
+            }
+
+            Debug.Log($"Attacker: Rolled dam was {original} but after multipliers is {final}");
+
+            // Start the roll -> fly -> hit sequence and PAUSE the loop until it finishes
+            yield return StartCoroutine(ds.AnimateDice(
+                Mathf.CeilToInt(original),
+                Mathf.CeilToInt(final),
+                dfdHealthTxt,
+                effects,
+                () => {
+                    if (dfdShaker != null) {
+                        dfdShaker.StartCoroutine(dfdShaker.ShakeUI());
+                    }
+                }
+            ));
+
+            // 5. INCREMENTAL UPDATE: Happens immediately after the die hits and shakes
+            defender.currentHealth -= final;
+            UpdateUI(attacker, defender); // Instantly updates the health text on screen
+        }
+
+        foreach (int rolledValue in dfdDice) {
+            GameObject die = Instantiate(UIDie, new Vector2(100f, 100f), Quaternion.identity);
+            die.transform.SetParent(atkDiceText.transform.parent, false);
+            DiceUI ds = die.GetComponent<DiceUI>();
+
+            int original = Mathf.CeilToInt(rolledValue);
+            int final = original;
+            //if (isSneakAttack) { total *= 1.5f; }
+            //total = EvaluateMidBattleEffects(attacker, total);
+            List<CardEffectData> effects = GetCardEffectsForDie(defender);
+
+            if (effects.Count > 0) {
+                foreach (CardEffectData effect in effects) {
+                    final = Mathf.CeilToInt(final * effect.multiplier);
+                }
+            }
+
+            //float total = rolledValue;
+            //total = EvaluateMidBattleEffects(defender, total);
+            Debug.Log($"Attacker: Rolled dam was {original} but after multipliers is {final}");
+
+            // Start the roll -> fly -> hit sequence and PAUSE the loop until it finishes
+            yield return StartCoroutine(ds.AnimateDice(
+                Mathf.CeilToInt(original),
+                Mathf.CeilToInt(final),
+                atkHealthTxt,
+                effects,
+                () => {
+                    // This triggers the exact millisecond the die hits the target
+                    if (atkShaker != null) {
+                        atkShaker.StartCoroutine(atkShaker.ShakeUI());
+                    }
+                }
+            ));
+
+            attacker.currentHealth -= final;
+            UpdateUI(attacker, defender);
+        }
+        
+        bool battleDone = ExecutePostBattlePhase(attacker, defender);
+        if (battleDone) {
+            ShowResult(attacker, defender);
+            GameplayManager.Instance.SetPhase(TurnPhase.BattleEnd);
+            phase = CombatPhase.End;
+        }
+        else {
+            phase = CombatPhase.WaitForInput;
+        } 
+    }
+
+    private List<CardEffectData> GetCardEffectsForDie(Piece piece) {
+        List<CardEffectData> results = new List<CardEffectData>();
+        StatusHost host = piece.GetComponent<StatusHost>();
+        if (host == null) return results;
+
+        foreach (StatusEffect effect in host.getEffects()) {
+            if (effect.id == CardId.N_CONFLP) {
+                if (UnityEngine.Random.Range(0, 2) == 0) {
+                    results.Add(new CardEffectData { cardName = "Coin Flip", multiplier = 2.0f, displayColor = Color.green });
+                }
+                else {
+                    results.Add(new CardEffectData { cardName = "Coin Flip", multiplier = 0.25f, displayColor = Color.yellow });
+                }
+            }
+        }
+        return results;
     }
 
     private bool ExecutePostBattlePhase(Piece attacker, Piece defender) {
@@ -199,20 +280,6 @@ public class CombatManager : MonoBehaviour {
         }
 
         return (isMarkedForDeath, battleDone);
-    }
-
-    private void UpdateDiceDisplayText(Piece attacker, Piece defender, int[] atkDice, int[] dfdDice, bool isSneakAttack) {
-        string atkString = $"({string.Join(" + ", atkDice)})";
-        string dfdString = $"({string.Join(" + ", dfdDice)})";
-
-        if (isSneakAttack) {
-            atkDiceText.text = $"{atkString} * 1.5 = {(float)atkDice.Sum() * 1.5f}";
-        }
-        else {
-            atkDiceText.text = $"{atkString} = {atkDice.Sum()}";
-        }
-
-        dfdDiceText.text = $"{dfdString} = {dfdDice.Sum()}";
     }
 
     private void UpdateUI(Piece attacker, Piece defender) {

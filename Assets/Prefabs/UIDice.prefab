@@ -88,7 +88,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2ec30371e2431d4ca2bf2edbe787201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diceImage: {fileID: 0}
   diceFaces:
   - {fileID: 1220551854, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
   - {fileID: -2066328103, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
@@ -102,5 +101,18 @@ MonoBehaviour:
   - {fileID: -1729830955, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
   - {fileID: 243644302, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
   - {fileID: -1664698624, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: -1138835878, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: 1031756941, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: 154641281, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: 1245918430, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: 1774786516, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: -1364456593, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: -2130978869, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: -588616874, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
+  - {fileID: 771827632, guid: 74a7aa6b34fdff1488a5897e591f2521, type: 3}
   rollDuration: 0.75
   faceChangeSpeed: 0.08
+  aftRollStop: 0.33
+  effectStop: 1.2
+  flySpeed: 1500
+  floatingText: {fileID: 510924274019585735, guid: 1627632d543ad644382001a57a97a741, type: 3}
