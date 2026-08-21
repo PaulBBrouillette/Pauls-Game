@@ -9,12 +9,13 @@ public class CombatManager : MonoBehaviour {
     private enum CombatPhase { Start, WaitForInput, RollingDice, NoInputAllowed, End, Inactive }
     private CombatPhase phase;
 
-    [SerializeField] private TextMeshProUGUI atkDiceText;
-    [SerializeField] private TextMeshProUGUI dfdDiceText;
+    [SerializeField] private GameObject atkDiceLocation;
+    [SerializeField] private GameObject dfdDiceLocation;
     [SerializeField] private TextMeshProUGUI atkHealthText;
     [SerializeField] private TextMeshProUGUI dfdHealthText;
     [SerializeField] private TextMeshProUGUI resultText;
     [SerializeField] private GameObject UIDie;
+    [SerializeField] private GameObject DiceLocation;
     private Piece attacker, defender;
     private bool isSneakAttack;
     private StatusHost aHost, dHost, thisHost, otherHost;
@@ -110,8 +111,8 @@ public class CombatManager : MonoBehaviour {
         TargetShaker atkShaker = atkHealthText.GetComponent<TargetShaker>();
 
         foreach (float rolledValue in atkDice) {
-            GameObject die = Instantiate(UIDie, new Vector2(100f, 100f), Quaternion.identity);
-            die.transform.SetParent(atkDiceText.transform.parent, false);
+            GameObject die = Instantiate(UIDie, DiceLocation.transform.localScale, Quaternion.identity);
+            die.transform.SetParent(DiceLocation.transform, false);
             DiceUI ds = die.GetComponent<DiceUI>();
             int original = Mathf.CeilToInt(rolledValue);
             int final = original;
@@ -129,7 +130,6 @@ public class CombatManager : MonoBehaviour {
 
             Debug.Log($"Attacker: Rolled dam was {original} but after multipliers is {final}");
 
-            // Start the roll -> fly -> hit sequence and PAUSE the loop until it finishes
             yield return StartCoroutine(ds.AnimateDice(
                 Mathf.CeilToInt(original),
                 Mathf.CeilToInt(final),
@@ -142,14 +142,13 @@ public class CombatManager : MonoBehaviour {
                 }
             ));
 
-            // 5. INCREMENTAL UPDATE: Happens immediately after the die hits and shakes
             defender.currentHealth -= final;
             UpdateUI(attacker, defender); // Instantly updates the health text on screen
         }
 
         foreach (int rolledValue in dfdDice) {
-            GameObject die = Instantiate(UIDie, new Vector2(100f, 100f), Quaternion.identity);
-            die.transform.SetParent(atkDiceText.transform.parent, false);
+            GameObject die = Instantiate(UIDie, DiceLocation.transform.localScale, Quaternion.identity);
+            die.transform.SetParent(DiceLocation.transform, false);
             DiceUI ds = die.GetComponent<DiceUI>();
 
             int original = Mathf.CeilToInt(rolledValue);
@@ -168,14 +167,12 @@ public class CombatManager : MonoBehaviour {
             //total = EvaluateMidBattleEffects(defender, total);
             Debug.Log($"Attacker: Rolled dam was {original} but after multipliers is {final}");
 
-            // Start the roll -> fly -> hit sequence and PAUSE the loop until it finishes
             yield return StartCoroutine(ds.AnimateDice(
                 Mathf.CeilToInt(original),
                 Mathf.CeilToInt(final),
                 atkHealthTxt,
                 effects,
                 () => {
-                    // This triggers the exact millisecond the die hits the target
                     if (atkShaker != null) {
                         atkShaker.StartCoroutine(atkShaker.ShakeUI());
                     }
@@ -290,8 +287,6 @@ public class CombatManager : MonoBehaviour {
     public void ResetUI() {
         atkHealthText.text = "";
         dfdHealthText.text = "";
-        atkDiceText.text = "";
-        dfdDiceText.text = "";
         resultText.text = "";
     }
 

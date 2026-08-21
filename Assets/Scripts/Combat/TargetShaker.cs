@@ -3,10 +3,12 @@ using UnityEngine;
 public class TargetShaker : MonoBehaviour {
     private RectTransform rectTransform;
     private Vector2 originalAnchoredPos;
+    private Vector2 originalPosition;
 
     void Awake() {
         rectTransform = GetComponent<RectTransform>();
         originalAnchoredPos = rectTransform.anchoredPosition;
+        originalPosition = rectTransform.transform.localPosition;
     }
 
     public IEnumerator ShakeUI(float duration = 0.2f, float magnitude = 10f) {
@@ -21,6 +23,6 @@ public class TargetShaker : MonoBehaviour {
             yield return null;
         }
 
-        rectTransform.anchoredPosition = originalAnchoredPos;
+        rectTransform.localPosition = originalPosition;
     }
 }

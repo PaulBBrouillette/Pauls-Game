@@ -62,6 +62,8 @@ public class GameplayManager : MonoBehaviour {
     private bool isSneakAttack = false; // Is the current attack a sneak attack?
     [SerializeField] private Image attackerIcon; // attackerPiece's icon
     [SerializeField] private Image defenderIcon; // defenderPiece's icon
+    public Player attackerPlayer;
+    public Player defenderPlayer;
 
     // Utility 
     System.Random rand; // Shared random object
@@ -85,6 +87,7 @@ public class GameplayManager : MonoBehaviour {
     private string pieceRef = "Piece";
     private string tileRef = "Tile";
     private int pieceIndex = 0;
+    private int currentRound = 1;
 
     // Holds data about what the mouse is currently looking at
     private struct PointerInfo {
@@ -140,7 +143,7 @@ public class GameplayManager : MonoBehaviour {
     /// Handle the current phase
     /// </summary>
     private void HandleCurrentPhase() {
-        
+
         switch (phase) {
             case TurnPhase.RoundOneStart:
                 Debug.Log($"{currentPlayerGO.name} Start!");
@@ -375,8 +378,8 @@ public class GameplayManager : MonoBehaviour {
                 }
                 break;
 
-                // When a existing piece is able to reach a piece of an opposing team, the attacker and defender are locked
-                // into a battle scene where dice are rolled, any abilities and cards are used and the loser is destroyed
+            // When a existing piece is able to reach a piece of an opposing team, the attacker and defender are locked
+            // into a battle scene where dice are rolled, any abilities and cards are used and the loser is destroyed
             case TurnPhase.Attack:
                 // Wait until CombatManager finishes
                 /*
@@ -388,8 +391,8 @@ public class GameplayManager : MonoBehaviour {
 
             case TurnPhase.BattleStart:
                 battlePanel.SetActive(true);
-                attackerIcon.sprite = attackerPiece.data.shopIcon;
-                defenderIcon.sprite = defenderPiece.data.shopIcon;
+                attackerIcon.sprite = attackerPiece.data.mapIcon;
+                defenderIcon.sprite = defenderPiece.data.mapIcon;
                 mainUIPanel.SetActive(false);
                 CombatManager.Instance.BeginCombat(attackerPiece, defenderPiece, isSneakAttack);
                 SetPhase(TurnPhase.Attack);
@@ -479,14 +482,7 @@ public class GameplayManager : MonoBehaviour {
 
         GameObject pPrefab = null;
         pPrefab = piecePrefab;
-        /* 
-        if (selectedPieceToBuy.modelPrefab == null) {
-            pPrefab = piecePrefab;
-        }
-        else {
-            pPrefab = selectedPieceToBuy.modelPrefab;
-        }
-        */
+
 
         GameObject pieceGO = Instantiate(pPrefab, spawnPos, Quaternion.identity);
 
@@ -497,6 +493,7 @@ public class GameplayManager : MonoBehaviour {
         p.currentHealth = selectedPieceToBuy.initMaxHealth;
         p.currentTile = tile;
         p.name = selectedPieceToBuy.name + "_" + pieceIndex;
+        p.GetComponent<SpriteRenderer>().sprite = p.data.mapIcon;
         pieceIndex++;
         pieceGO.transform.parent = tile.transform;
 
@@ -536,7 +533,7 @@ public class GameplayManager : MonoBehaviour {
         else {
             SetPhase(TurnPhase.RoundOneWait);
         }
-        
+
     }
 
     /// <summary>
@@ -558,7 +555,7 @@ public class GameplayManager : MonoBehaviour {
     /// and the current phase allows it
     /// </summary>
     /// <returns>Returns true if the piece can be grabbed and move, false otherwise</returns>
-    
+
     /*
     private bool TryGrabPiece(PointerInfo info) {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
@@ -687,9 +684,9 @@ public class GameplayManager : MonoBehaviour {
                     // piece defeats the defender, put them back in their place afterwards
                     Debug.Log("CanMoveTo: Attacking enemy piece...");
                     attackerPiece = currentMovingPiece.GetComponent<Piece>();
+                    attackerPlayer = currentPlayerScript;
 
                     GameObject directOccupant = info.isTileA ? info.side.occupantA : info.side.occupantB;
-
                     if (directOccupant != null) {
                         defenderPiece = directOccupant.GetComponent<Piece>();
                         isSneakAttack = false;
@@ -699,6 +696,14 @@ public class GameplayManager : MonoBehaviour {
                         List<Piece> otherPieces = info.tile.GetAllPiecesOnTile();
                         if (otherPieces.Count > 0) {
                             defenderPiece = otherPieces[UnityEngine.Random.Range(0, otherPieces.Count)];
+                        }
+                    }
+
+                    foreach (GameObject p in players) {
+                        Player player = p.GetComponent<Player>();
+                        if (defenderPiece.team == player.team) {
+                            defenderPlayer = player;
+                            break;
                         }
                     }
 
@@ -813,7 +818,7 @@ public class GameplayManager : MonoBehaviour {
 
             foreach (var connection in current.connections) {
                 TileSide target = connection.target;
-                
+
                 int newCost = costSoFar + connection.cost;
 
                 if (newCost > maxDistance)
@@ -902,6 +907,7 @@ public class GameplayManager : MonoBehaviour {
             }
         }
         capturingPlayer.ownedTiles++;
+        capturingPlayer.AddMoney(1);
         tile.setTeam(piece.team);
     }
 
@@ -960,7 +966,7 @@ public class GameplayManager : MonoBehaviour {
     /// </summary>
     private void InitializePlayers() {
         Team[] teamOrder = { Team.One, Team.Two, Team.Three, Team.Four };
-       
+
         Debug.Log("Making " + playerCount + " players");
         for (int i = 0; i < playerCount; i++) {
             GameObject pGO = Instantiate(playerPrefab);
@@ -1033,6 +1039,30 @@ public class GameplayManager : MonoBehaviour {
     }
 
     /// <summary>
+    /// If the current round is divisible by 2, give the player a piece. If it's 3,
+    /// give the player a card.
+    /// </summary>
+    private void GetPieceOrCardReward() {
+        double rewardVal = GetRewardValue();
+        Rank rank = Rank.One;
+        if (rewardVal <= 2.0) {
+            rank = Rank.One;
+        }
+        else if (rewardVal > 2.0 && rewardVal <= 3.2) {
+            rank = Rank.Two;
+        }
+        else {
+            rank = Rank.Three;
+        }
+        if (currentRound % 2 == 0) {
+            List<PieceData> pieces = GetXRandomPieces(1, rank);
+            foreach (PieceData piece in pieces) {
+                currentPlayerScript.AddPieceToStock(piece);
+            }
+        }
+    }
+
+    /// <summary>
     /// Load in the new player's piece and card stock into the ScrollView
     /// </summary>
     void LoadNewPlayerInfo() {
@@ -1052,9 +1082,9 @@ public class GameplayManager : MonoBehaviour {
             }
             newItem.transform.SetParent(playerCardStockContent, false);
         }
-        // For now, just default salary to basePrice
-        currentPlayerScript.AddMoney(basePrice);
-        GetRewardValue();
+        currentPlayerScript.AddMoney(GetSalary());
+        GetPieceOrCardReward();
+        double reward = GetRewardValue();
     }
 
     /// <summary>
@@ -1065,6 +1095,7 @@ public class GameplayManager : MonoBehaviour {
         if (index >= players.Count - 1) {
             // Goes back to "first" player and ticks down status effects and resets each piece's remaining moves
             TickDownEffects();
+            currentRound++;
             foreach (Piece p in piecesOnBoard) {
                 p.ResetMoves();
             }
@@ -1182,7 +1213,7 @@ public class GameplayManager : MonoBehaviour {
     }
 
     private void UpdateUI() {
-        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nPhase: {phase}\nMoves remaining: {currentPlayerScript.GetTotalMoveRange()}";
+        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nCurrent Round: {currentRound}";
     }
 
     /// <summary>
@@ -1202,7 +1233,37 @@ public class GameplayManager : MonoBehaviour {
         int money = currentPlayerScript.money;
         value += (1 - (money / basePrice)) / 3;
         Debug.Log("Reward: " + value);
+
+        // Pieces
         return value;
+    }
+
+    /// <summary>
+    /// Based on factors, give a player money when their turn comes around
+    /// </summary>
+    /// <returns>Money to add to a player</returns>
+    private int GetSalary() {
+        int money = basePrice / 2;
+        money += Mathf.Max(1, initAvgTiles - currentPlayerScript.ownedTiles);
+        int totalPieces = 0;
+        int myPieces = currentPlayerScript.piecesInStock.Count;
+
+        foreach (Piece p in piecesOnBoard) {
+            if (p.team == currentPlayerScript.team) {
+                myPieces++;
+            }
+            else {
+                totalPieces++;
+            }
+        }
+
+        foreach (GameObject o in players) {
+            Player player = o.GetComponent<Player>();
+             totalPieces += player.piecesInStock.Count;
+        }
+        money += (int)Math.Ceiling(((totalPieces - myPieces) / 4.0) * 6);
+
+        return Mathf.Max(money, 1);
     }
 
     /// <summary>

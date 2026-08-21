@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pieceName: Shiny Abe
   cost: 22
-  shopIcon: {fileID: 21300000, guid: 159cecffc974f1744b578674d3f8ff46, type: 3}
+  mapIcon: {fileID: 21300000, guid: 159cecffc974f1744b578674d3f8ff46, type: 3}
   costMultiplier: 1.8
   mvRgMultiplier: 0.25
-  initMaxHealth: 100
+  initMaxHealth: 23
   moveRange: 4
   dice: 0300000006000000
   id: 

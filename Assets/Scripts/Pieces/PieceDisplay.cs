@@ -9,7 +9,7 @@ public class PieceDisplay : MonoBehaviour {
     public void Initialize(PieceData data) {
         this.data = data;
         Image img = GetComponent<Image>();
-        img.sprite = data.shopIcon;
+        img.sprite = data.mapIcon;
         id = rollingInt;
         rollingInt++;
     }
