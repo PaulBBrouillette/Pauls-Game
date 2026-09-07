@@ -1,0 +1,54 @@
+.header {
+    align-self: auto;
+    -unity-font: url("project://database/Assets/Fonts/cairopixel.medium.otf?fileID=12800000&guid=08b4425637b669c4ca5d36ccf706c88c&type=3#cairopixel.medium");
+    font-size: 40px;
+    -unity-font-style: normal;
+    -unity-text-align: upper-center;
+    align-items: auto;
+}
+
+.button {
+    margin-top: 15px;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    margin-left: 15px;
+    padding-top: 25px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+    width: 40%;
+    font-size: 46px;
+    height: auto;
+    flex-shrink: 0;
+    flex-grow: 0;
+    -unity-text-align: middle-center;
+    text-overflow: clip;
+    white-space: nowrap;
+    transition-duration: 0.75s;
+    transition-timing-function: ease-out-back;
+}
+
+.button:hover {
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: ease-out-back;
+    transition-delay: 0s;
+    color: rgb(0, 0, 0);
+    font-size: 49px;
+    width: 43%;
+}
+
+.optionsRadioGroup {
+    align-self: auto;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    height: auto;
+    width: auto;
+    font-size: 20px;
+}

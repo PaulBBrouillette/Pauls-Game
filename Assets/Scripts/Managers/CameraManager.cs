@@ -186,7 +186,9 @@ public class CameraManager : MonoBehaviour {
         dragOriginWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
     }
 
+    // Reset camera button from main game
     public void ResetToDefaultView() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         transform.position = defaultZoomedOutPos;
         cam.orthographicSize = orthoSize;
     }

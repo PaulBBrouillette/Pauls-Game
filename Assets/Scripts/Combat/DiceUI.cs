@@ -65,6 +65,8 @@ public class DiceUI : MonoBehaviour {
             rectTransform.Rotate(new Vector3(0, 0, 360f * Time.deltaTime));
             yield return null;
         }
+        // Play sound
+        SoundManager.Instance.PlaySoundByType(SoundType.BATTLE_HIT);
         onArrival?.Invoke();
         Destroy(gameObject);
     }

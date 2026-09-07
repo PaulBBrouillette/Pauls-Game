@@ -109,6 +109,10 @@ public class GameplayManager : MonoBehaviour {
         if (BetweenScene.Instance == null) {
             this.AddComponent<BetweenScene>();
         }
+        if (SoundManager.Instance == null) {
+            this.AddComponent<SoundManager>();
+        }
+
         Debug.Log("GameplayManager Start - START");
         playerCount = BetweenScene.Instance.numPlayers;
         baseMoveRange = BetweenScene.Instance.gridHeight + BetweenScene.Instance.gridWidth;
@@ -116,12 +120,12 @@ public class GameplayManager : MonoBehaviour {
         InitializePlayers();
         piecesOnBoard = new List<Piece>();
 
-        CloseCardStock();
-        ClosePieceStock();
+        cardStockObject.SetActive(false);
+        pieceStockObject.SetActive(false);
         shopPanel.SetActive(false);
         battlePanel.SetActive(false);
         shopButton.onClick.AddListener(OpenShop);
-        capitulateButton.onClick.AddListener(Capitulate);
+        capitulateButton.onClick.AddListener(EndPlayerTurn);
         backFromShopButton.onClick.AddListener(BackToWait);
         GridManager.Instance.InitializeMap();
         CameraManager.Instance.SetupCamera(BetweenScene.Instance.gridWidth, BetweenScene.Instance.gridHeight);
@@ -178,6 +182,15 @@ public class GameplayManager : MonoBehaviour {
             case TurnPhase.Wait:
                 info = GetPointerInfo();
                 activeGhost.SetActive(false);
+                Ray rayz = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                RaycastHit hitz;
+
+                if (Physics.Raycast(rayz, out hitz)) {
+                    if (hitz.collider) {
+                        Debug.Log(hitz.collider.tag);
+                    }
+                }
+
 
                 // Transition to Move if we grab a piece
                 if (InputManager.Controls.Player.Select.WasPressedThisFrame() && TryGrabPiece(info)) {
@@ -210,12 +223,16 @@ public class GameplayManager : MonoBehaviour {
                     SetPhase(TurnPhase.Wait);
                 }
                 if (InputManager.Controls.Player.Select.triggered) {
+                    Debug.Log("Mouse click");
                     TargetType type = selectedCardToBuy.targetType;
                     Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+                    Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 2f);
                     switch (type) {
                         case TargetType.FriendlyPiece:
                             // Check that the piece you are selecting is a friendly one
-                            if (Physics.Raycast(ray, out RaycastHit hit)) {
+                            RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
+                            if (hit.collider != null) {
+                                Debug.Log($"2D Ray hit: {hit.collider.name} with tag: {hit.collider.tag}");
                                 if (hit.collider.CompareTag(pieceRef)) {
                                     Piece p = hit.collider.GetComponent<Piece>();
                                     if (p != null && p.team == currentPlayerScript.team) {
@@ -229,7 +246,8 @@ public class GameplayManager : MonoBehaviour {
                             break;
 
                         case TargetType.EnemyPiece:
-                            if (Physics.Raycast(ray, out RaycastHit hit3)) {
+                            RaycastHit2D hit3 = Physics2D.GetRayIntersection(ray);
+                            if (hit3.collider != null) {
                                 if (hit3.collider.CompareTag(pieceRef)) {
                                     Piece p = hit3.collider.GetComponent<Piece>();
                                     if (p != null && p.team != currentPlayerScript.team) {
@@ -243,7 +261,8 @@ public class GameplayManager : MonoBehaviour {
                             break;
 
                         case TargetType.EnemyTile:
-                            if (Physics.Raycast(ray, out RaycastHit hit2)) {
+                            RaycastHit2D hit2 = Physics2D.GetRayIntersection(ray);
+                            if (hit2.collider != null) {
                                 if (hit2.collider.CompareTag(tileRef)) {
                                     Tile t = hit2.collider.GetComponent<Tile>();
                                     if (t != null && t.team != currentPlayerScript.team) {
@@ -269,7 +288,8 @@ public class GameplayManager : MonoBehaviour {
                             break;
 
                         case TargetType.FriendlyTile:
-                            if (Physics.Raycast(ray, out RaycastHit hit6)) {
+                            RaycastHit2D hit6 = Physics2D.GetRayIntersection(ray);
+                            if (hit6.collider != null) {
                                 if (hit6.collider.CompareTag(tileRef)) {
                                     Tile t = hit6.collider.GetComponent<Tile>();
                                     if (t != null && t.team == currentPlayerScript.team) {
@@ -295,7 +315,8 @@ public class GameplayManager : MonoBehaviour {
                             break;
 
                         case TargetType.MultiSelectTile:
-                            if (Physics.Raycast(ray, out RaycastHit hit4)) {
+                            RaycastHit2D hit4 = Physics2D.GetRayIntersection(ray);
+                            if (hit4.collider != null) {
                                 if (hit4.collider.CompareTag(tileRef)) {
                                     Tile t = hit4.collider.GetComponent<Tile>();
                                     if (t != null) {
@@ -306,7 +327,8 @@ public class GameplayManager : MonoBehaviour {
                             }
                             break;
                         case TargetType.MultiSelectPiece:
-                            if (Physics.Raycast(ray, out RaycastHit hit5)) {
+                            RaycastHit2D hit5 = Physics2D.GetRayIntersection(ray);
+                            if (hit5.collider != null) {
                                 if (hit5.collider.CompareTag(pieceRef)) {
                                     Piece p = hit5.collider.GetComponent<Piece>();
                                     if (p != null) {
@@ -336,7 +358,8 @@ public class GameplayManager : MonoBehaviour {
                     Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
                     switch (type) {
                         case TargetType.MultiSelectTile:
-                            if (Physics.Raycast(ray, out RaycastHit hit)) {
+                            RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
+                            if (hit.collider != null) {
                                 if (hit.collider.CompareTag(tileRef)) {
                                     Tile t = hit.collider.GetComponent<Tile>();
                                     if (t != null && t != firstSelectedTile) {
@@ -351,7 +374,8 @@ public class GameplayManager : MonoBehaviour {
                             }
                             break;
                         case TargetType.MultiSelectPiece:
-                            if (Physics.Raycast(ray, out RaycastHit hit2)) {
+                            RaycastHit2D hit2 = Physics2D.GetRayIntersection(ray);
+                            if (hit2.collider != null) {
                                 if (hit2.collider.CompareTag(pieceRef)) {
                                     Piece p = hit2.collider.GetComponent<Piece>();
                                     if (p != null && p != firstSelectedPiece) {
@@ -918,7 +942,8 @@ public class GameplayManager : MonoBehaviour {
     /// <summary>
     /// Gives game control to the next player in line
     /// </summary>
-    void Capitulate() {
+    void EndPlayerTurn() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         CloseCardStock();
         ClosePieceStock();
         if (phase == TurnPhase.RoundOneWait) {
@@ -1135,11 +1160,6 @@ public class GameplayManager : MonoBehaviour {
         }
     }
 
-    private String pString(PointerInfo info) {
-        if (info.tile == null) return "null";
-        return info.tile.name + " " + info.direction;
-    }
-
     /// <summary>
     /// Return info based on where the mouse currently is. See <see cref="PointerInfo"/> for data that is returned
     /// </summary>
@@ -1213,7 +1233,7 @@ public class GameplayManager : MonoBehaviour {
     }
 
     private void UpdateUI() {
-        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nCurrent Round: {currentRound}";
+        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nCurrent Round: {currentRound}\nPhase: {phase}";
     }
 
     /// <summary>
@@ -1420,6 +1440,7 @@ public class GameplayManager : MonoBehaviour {
     }
 
     void OpenShop() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         CloseCardStock();
         ClosePieceStock();
         shopPanel.SetActive(true);
@@ -1429,6 +1450,7 @@ public class GameplayManager : MonoBehaviour {
 
     // From shop, go to main screen
     void BackToWait() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         shopPanel.SetActive(false);
         mainUIPanel.SetActive(true);
         SetPhase(TurnPhase.Wait);
@@ -1448,6 +1470,7 @@ public class GameplayManager : MonoBehaviour {
     }
 
     public void ToggleCardStock() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         cardStockObject.SetActive(!cardStockObject.activeSelf);
         if (cardStockObject.activeSelf) {
             TogglePieceColliders(false);
@@ -1461,6 +1484,7 @@ public class GameplayManager : MonoBehaviour {
     }
 
     public void TogglePieceStock() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         pieceStockObject.SetActive(!pieceStockObject.activeSelf);
         if (pieceStockObject.activeSelf) {
             TogglePieceColliders(false);
@@ -1474,11 +1498,13 @@ public class GameplayManager : MonoBehaviour {
     }
 
     void CloseCardStock() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         cardStockObject.SetActive(false);
         TogglePieceColliders(true);
     }
 
     void ClosePieceStock() {
+        SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         pieceStockObject.SetActive(false);
         TogglePieceColliders(true);
     }

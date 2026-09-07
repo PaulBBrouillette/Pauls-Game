@@ -8,6 +8,7 @@ TagManager:
   - PieceDisplay
   - CardDisplay
   - Tile
+  - Hover
   layers:
   - Default
   - TransparentFX
