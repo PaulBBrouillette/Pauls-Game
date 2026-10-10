@@ -24,6 +24,9 @@ public class GridManager : MonoBehaviour {
         int teamNumber = gameplayManager.getPlayers().Count;
         int[] tiles = new int[4];
 
+        Transform background = gameObject.transform.GetChild(0);
+        background.transform.position = new Vector3(mapWidth / 2, mapHeight / 2, 2);
+
         var tPerTeam = GetTilesPerTeam(teamNumber);
 
         tiles[0] = tPerTeam.t1Tiles;
