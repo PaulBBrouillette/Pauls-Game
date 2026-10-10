@@ -15,6 +15,7 @@ public class CameraManager : MonoBehaviour {
     private float mapWidth;
     private float mapHeight;
     private Vector3 defaultZoomedOutPos;
+    private float zoomMinX, zoomMaxX, zoomMinY, zoomMaxY;
 
     [Header("Zoom Settings")]
     public float zoomSpeed = .5f;
@@ -40,7 +41,25 @@ public class CameraManager : MonoBehaviour {
         float centerX = (mapWidth - 1) * tileSize / 2f;
         float centerY = (mapHeight - 1) * tileSize / 2f;
 
+        // Clamp the x and y bounds of dragging so the baord is always in view,
+        // the larger the board, the 
+        int xBound = 4;
+        int yBound = 4;
+        if (BetweenScene.Instance.mapSize == MapSize.Medium) {
+            xBound += 2;
+            yBound += 2;
+        }
+        else if (BetweenScene.Instance.mapSize == MapSize.Large) {
+            xBound += 4;
+            yBound += 4;
+        }
+
         defaultZoomedOutPos = new Vector3(centerX, centerY, -10);
+        zoomMinX = defaultZoomedOutPos.x - xBound;
+        zoomMaxX = defaultZoomedOutPos.x + xBound;
+        zoomMinY = defaultZoomedOutPos.y - yBound;
+        zoomMaxY = defaultZoomedOutPos.y + yBound;
+
         transform.position = defaultZoomedOutPos;
         targetX = centerX;
         targetY = centerY;
@@ -180,9 +199,13 @@ public class CameraManager : MonoBehaviour {
         if (invertDrag) delta = -delta;
 
         Vector3 newPos = cam.transform.position + delta;
+        // Clamp the camera values so the grid is always on screen even when zoomed
+        newPos.x = Mathf.Clamp(newPos.x, zoomMinX, zoomMaxX);
+        newPos.y = Mathf.Clamp(newPos.y, zoomMinY, zoomMaxY);
         newPos.z = cam.transform.position.z;
-        //newPos = ClampCameraPosition(newPos);
+
         cam.transform.position = newPos;
+
         dragOriginWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
     }
 

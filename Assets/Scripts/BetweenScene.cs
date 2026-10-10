@@ -7,6 +7,7 @@ public class BetweenScene : MonoBehaviour
     public int gridHeight = 7;
     public int numPlayers = 2;
     public MapLayout mapLayout = MapLayout.Grouped;
+    public MapSize mapSize = MapSize.Small;
     public static BetweenScene Instance { get; private set; }
     void Awake() {
         if (Instance != null && Instance != this) {

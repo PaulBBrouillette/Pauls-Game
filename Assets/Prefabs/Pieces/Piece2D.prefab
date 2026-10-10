@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 1288661967442167560}
   - component: {fileID: -2014700431746922631}
   - component: {fileID: -323359778477042276}
+  - component: {fileID: 9171519630850048677}
+  - component: {fileID: 612245472004931029}
   m_Layer: 7
   m_Name: Piece2D
   m_TagString: Piece
@@ -168,3 +170,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeEffects: []
+--- !u!114 &9171519630850048677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734545502153028535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a81aedde07dcbab478ca3ebfa6c784e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupDelay: 0.45
+--- !u!210 &612245472004931029
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734545502153028535}
+  m_Enabled: 1
+  m_SortingLayerID: -1106951305
+  m_SortingLayer: 3
+  m_SortingOrder: 1
+  m_SortAtRoot: 0

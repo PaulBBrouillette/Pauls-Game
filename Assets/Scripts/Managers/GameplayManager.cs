@@ -28,8 +28,10 @@ public class GameplayManager : MonoBehaviour {
     [SerializeField] private GameObject mainUIPanel;
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private GameObject battlePanel;
-    [SerializeField] private GameObject teamSelectPanel;
+    [SerializeField] private GameObject teamSelectPanel; // For selecting a card with a team target type
+    [SerializeField] private GameObject yesNoPanel; // For selecting a card with a yes no confirm option
     [SerializeField] private TextMeshProUGUI currentPlayerUI;
+    [SerializeField] private TextMeshProUGUI currentRoundUI;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button capitulateButton;
     [SerializeField] private Button backFromShopButton;
@@ -183,21 +185,19 @@ public class GameplayManager : MonoBehaviour {
                 info = GetPointerInfo();
                 activeGhost.SetActive(false);
                 Ray rayz = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                RaycastHit hitz;
 
-                if (Physics.Raycast(rayz, out hitz)) {
-                    if (hitz.collider) {
-                        Debug.Log(hitz.collider.tag);
-                    }
+                RaycastHit2D hitz = Physics2D.GetRayIntersection(rayz);
+                if (hitz.collider != null) {
+                    
                 }
-
+                
 
                 // Transition to Move if we grab a piece
                 if (InputManager.Controls.Player.Select.WasPressedThisFrame() && TryGrabPiece(info)) {
-                    if (currentMovingPiece != null) {
-                        TogglePieceColliders(false);
-                    }
-                    SetPhase(TurnPhase.MovePiece);
+                if (currentMovingPiece != null) {
+                    TogglePieceColliders(false);
+                }
+                SetPhase(TurnPhase.MovePiece);
                 }
                 break;
 
@@ -221,12 +221,12 @@ public class GameplayManager : MonoBehaviour {
                 // Right click to cancel
                 if (InputManager.Controls.Player.Unselect.triggered) {
                     SetPhase(TurnPhase.Wait);
+                    teamSelectPanel.SetActive(false);
+                    yesNoPanel.SetActive(false); 
                 }
                 if (InputManager.Controls.Player.Select.triggered) {
-                    Debug.Log("Mouse click");
                     TargetType type = selectedCardToBuy.targetType;
                     Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-                    Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 2f);
                     switch (type) {
                         case TargetType.FriendlyPiece:
                             // Check that the piece you are selecting is a friendly one
@@ -344,6 +344,9 @@ public class GameplayManager : MonoBehaviour {
                     if (selectedCardToBuy.targetType == TargetType.Team) {
                         // Wait for player to select team
                         teamSelectPanel.SetActive(true);
+                    }
+                    else if (selectedCardToBuy.targetType == TargetType.YesNo) {
+                        yesNoPanel.SetActive(true);
                     }
                 }
                 break;
@@ -1123,6 +1126,15 @@ public class GameplayManager : MonoBehaviour {
             currentRound++;
             foreach (Piece p in piecesOnBoard) {
                 p.ResetMoves();
+                if (p.data.hasRewardCards) {
+                    if (currentRound % p.data.rewardCardRound == 0) {
+                        Player player = GetPlayerFromTeam(p.team);
+                        foreach (CardData d in p.data.rewardCards) {
+                            player.AddCardToStock(d);
+                            Debug.Log($"Gave {player} a {d.name} reward card because round is {currentRound}");
+                        }
+                    }
+                }
             }
             roundOneOver = true;
             currentPlayerGO = players[0];
@@ -1233,7 +1245,8 @@ public class GameplayManager : MonoBehaviour {
     }
 
     private void UpdateUI() {
-        currentPlayerUI.text = $"Player: {currentPlayerGO.name}\nCurrent Round: {currentRound}\nPhase: {phase}";
+        currentPlayerUI.text = $"{currentPlayerGO.name}\nMoney:{currentPlayerScript.money}\n\nPhase: {phase}";
+        currentRoundUI.text = $"Round: {currentRound}";
     }
 
     /// <summary>
@@ -1308,6 +1321,7 @@ public class GameplayManager : MonoBehaviour {
 
             piece.cost = Mathf.CeilToInt(piece.costMultiplier * basePrice);
             piece.moveRange = Mathf.CeilToInt(piece.mvRgMultiplier * baseMoveRange);
+            piece.initMaxHealth = Mathf.CeilToInt(piece.healthMultiplier * initAvgTiles);
 
             button.transform.SetParent(shopPanel.transform);
             TMP_Text tmpText = button.GetComponentInChildren<TMP_Text>();
@@ -1375,6 +1389,18 @@ public class GameplayManager : MonoBehaviour {
         selectedCardToBuy.PlayCard(currentPlayerScript, p, null, null, null, null);
         RemoveCardFromStock();
         teamSelectPanel.SetActive(false);
+        SetPhase(TurnPhase.Wait);
+    }
+
+    public void YesOption() {
+        selectedCardToBuy.PlayCard(currentPlayerScript, null, null, null, null, null);
+        RemoveCardFromStock();
+        yesNoPanel.SetActive(false);
+        SetPhase(TurnPhase.Wait);
+    }
+
+    public void NoOption() {
+        yesNoPanel.SetActive(false);
         SetPhase(TurnPhase.Wait);
     }
 
@@ -1515,6 +1541,15 @@ public class GameplayManager : MonoBehaviour {
 
     void EnableShop() {
         shopButton.enabled = true;
+    }
+
+    Player GetPlayerFromTeam(Team team) {
+        foreach (GameObject p in players) {
+            if (p.GetComponent<Player>().team == team) {
+                return p.GetComponent<Player>();
+            }
+        }
+        return null;
     }
 
     #endregion

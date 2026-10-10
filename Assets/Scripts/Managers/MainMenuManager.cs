@@ -72,28 +72,20 @@ public class MainMenuManager : MonoBehaviour {
         else {
             BetweenScene.Instance.mapLayout = MapLayout.Scrambled;
         }
+
+        if (size.value == 0) {
+            BetweenScene.Instance.mapSize = MapSize.Small;
+        }
+        else if (size.value == 1) {
+            BetweenScene.Instance.mapSize = MapSize.Medium;
+        }
+        else {
+            BetweenScene.Instance.mapSize = MapSize.Large;
+        }
+
         BetweenScene.Instance.gridWidth = GetDimension(size.value);
         BetweenScene.Instance.gridHeight = GetDimension(size.value);
         Debug.Log("Launch game about to transition scenes");
-        SceneManager.LoadScene("MainGame");
-    }
-
-    public void Play() {
-        // Choose from the player amounts and map sizes, random for now
-        string teams = numTeamsOptions.ActiveToggles().FirstOrDefault().name;
-        string mapSize = mapSizeOptions.ActiveToggles().FirstOrDefault().name;
-        string mapType = mapTypeOptions.ActiveToggles().FirstOrDefault().name;
-        Debug.Log($"Selected {teams} teams, {mapSize} map size, and Scrambled map type");
-        BetweenScene.Instance.numPlayers = int.Parse(teams);
-        //BetweenScene.Instance.gridWidth = GetDimension(mapSize);
-        //BetweenScene.Instance.gridHeight = GetDimension(mapSize);
-        if (mapType.Equals("Grouped")) {
-            BetweenScene.Instance.mapLayout = MapLayout.Grouped;
-        }
-        else {
-            BetweenScene.Instance.mapLayout = MapLayout.Scrambled;
-        }
-            
         SceneManager.LoadScene("MainGame");
     }
 

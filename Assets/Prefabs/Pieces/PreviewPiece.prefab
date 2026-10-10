@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 222724059027042564}
   - component: {fileID: 1288661967442167560}
   - component: {fileID: -2014700431746922631}
+  - component: {fileID: -3697121927158637194}
   m_Layer: 7
   m_Name: PreviewPiece
   m_TagString: Piece
@@ -154,3 +155,15 @@ MonoBehaviour:
   currentHealth: 0
   movesRemaining: 0
   currentTile: {fileID: 0}
+--- !u!210 &-3697121927158637194
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734545502153028535}
+  m_Enabled: 1
+  m_SortingLayerID: -1106951305
+  m_SortingLayer: 3
+  m_SortingOrder: 1
+  m_SortAtRoot: 0

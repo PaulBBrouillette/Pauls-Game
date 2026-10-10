@@ -16,6 +16,8 @@ public class CombatManager : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI resultText;
     [SerializeField] private GameObject UIDie;
     [SerializeField] private GameObject DiceLocation;
+    public GameObject floatingText;
+    public RectTransform canvasRect;
     private Piece attacker, defender;
     private bool isSneakAttack;
     private StatusHost aHost, dHost, thisHost, otherHost;
@@ -59,7 +61,6 @@ public class CombatManager : MonoBehaviour {
                 break;
 
             case CombatPhase.NoInputAllowed:
-
                 break;
             
             case CombatPhase.Inactive:
@@ -262,9 +263,9 @@ public class CombatManager : MonoBehaviour {
                         self.currentHealth = 1;
                         battleDone = true;
                         isMarkedForDeath = false;
+                        StartCoroutine(AnimateAfterBattleEffects(self));
                     }
                     break;
-
                 case CardId.AB_STLRMN: // Still remains (gain health from opponent's negative health)
                     if (opponent.currentHealth < 0) {
                         host.RemoveEffect(effect);
@@ -277,6 +278,26 @@ public class CombatManager : MonoBehaviour {
         }
 
         return (isMarkedForDeath, battleDone);
+    }
+
+    public IEnumerator AnimateAfterBattleEffects(Piece self) {
+        Debug.Log("Start AnimateAfterBattleEffects");
+
+        // 1. Convert the attacker's world position to screen space, then to canvas local space
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(attacker.transform.position);
+
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out localPoint);
+
+        // 2. Instantiate directly onto the UI Canvas (diceSpawnCanvas or canvasRect)
+        GameObject textObj = Instantiate(floatingText, canvasRect);
+
+        // 3. Position it right above the piece and play the float animation
+        RectTransform rect = textObj.GetComponent<RectTransform>();
+        rect.anchoredPosition = localPoint + new Vector2(0f, 50f); // Offset slightly above the piece
+
+        FloatingTextUI ft = textObj.GetComponent<FloatingTextUI>();
+        yield return StartCoroutine(ft.Float("Survive Battle!", Color.yellow));
     }
 
     private void UpdateUI(Piece attacker, Piece defender) {

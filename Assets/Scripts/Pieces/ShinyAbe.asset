@@ -17,10 +17,12 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: 159cecffc974f1744b578674d3f8ff46, type: 3}
   costMultiplier: 1.8
   mvRgMultiplier: 0.25
-  initMaxHealth: 23
+  healthMultiplier: 0.75
+  initMaxHealth: 18
   moveRange: 4
   dice: 0300000006000000
   id: 
   rank: 0
   initCards:
   - {fileID: 11400000, guid: 1aa174313d1de76408da16cac1fc1507, type: 2}
+  - {fileID: 11400000, guid: 3d594aa1c26b65e4abfa70f25f0a2c99, type: 2}

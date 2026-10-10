@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class Piece : MonoBehaviour
@@ -47,6 +48,10 @@ public class Piece : MonoBehaviour
             // Bind, return 0 if found
             if (effect.id == CardId.N_BIND) { 
                 return 0;
+            }
+            // Homeopathic delusion
+            if (effect.id == CardId.N_HPTHDL) {
+                return 1;
             }
         }
         return totalMoves;

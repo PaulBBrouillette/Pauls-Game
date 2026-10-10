@@ -26,6 +26,7 @@
     white-space: nowrap;
     transition-duration: 0.75s;
     transition-timing-function: ease-out-back;
+    background-image: none;
 }
 
 .button:hover {
