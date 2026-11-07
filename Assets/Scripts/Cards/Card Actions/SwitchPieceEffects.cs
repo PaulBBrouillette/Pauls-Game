@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class SwitchPieceEffects : CardAction {
-    public override void DoAction(Player owner, Player targetOwner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile, float effectAmount, int duration, bool existsUntilDestroyed) {
+    public override void DoAction(Player owner, Player targetOwner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile, float effectAmount, int duration, bool existsUntilDestroyed, CardContext context) {
         List<StatusEffect> fpEffects = new();
         List<StatusEffect> spEffects = new();
         StatusHost sh1 = targetPiece != null ? targetPiece.GetComponent<StatusHost>() : null;

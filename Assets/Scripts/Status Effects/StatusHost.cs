@@ -21,6 +21,10 @@ public class StatusHost : MonoBehaviour {
         activeEffects.RemoveAll(e => e.Tick());
     }
 
+    public void ProcessTurnAfterBattle() {
+        activeEffects.RemoveAll(e => e.BattleTick());
+    }
+
     public List<StatusEffect> getEffects() {
         return activeEffects;
     }

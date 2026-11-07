@@ -27,12 +27,12 @@ public class GridManager : MonoBehaviour {
         Transform background = gameObject.transform.GetChild(0);
         background.transform.position = new Vector3(mapWidth / 2, mapHeight / 2, 2);
 
-        var tPerTeam = GetTilesPerTeam(teamNumber);
+        var (t1Tiles, t2Tiles, t3Tiles, t4Tiles) = GetTilesPerTeam(teamNumber);
 
-        tiles[0] = tPerTeam.t1Tiles;
-        tiles[1] = tPerTeam.t2Tiles;
-        tiles[2] = tPerTeam.t3Tiles;
-        tiles[3] = tPerTeam.t4Tiles;
+        tiles[0] = t1Tiles;
+        tiles[1] = t2Tiles;
+        tiles[2] = t3Tiles;
+        tiles[3] = t4Tiles;
         Debug.Log($"Map size is {mapWidth}x{mapHeight}");
 
         bool validIndex = false;
@@ -72,7 +72,7 @@ public class GridManager : MonoBehaviour {
                 }
             }
             // Assign num tiles to each player
-            GameplayManager.Instance.AssignTileAmtsToPlayers(tPerTeam.t1Tiles, tPerTeam.t2Tiles, tPerTeam.t3Tiles, tPerTeam.t4Tiles);
+            GameplayManager.Instance.AssignTileAmtsToPlayers(t1Tiles, t2Tiles, t3Tiles, t4Tiles);
         }
         else {
             // 1. Generate the data beforehand
