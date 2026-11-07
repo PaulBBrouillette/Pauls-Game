@@ -9,14 +9,14 @@ public class TooltipManager : MonoBehaviour {
 
     [Header("UI References")]
     [SerializeField] private Image panelImage;
-    [SerializeField] private GameObject panelObject;
+    [SerializeField] public GameObject panelObject;
     [SerializeField] private TextMeshProUGUI panelText;
     [SerializeField] private RectTransform panelRect;
     [SerializeField] private float targetAlpha = .55f;
     [SerializeField] private float fadeTime = .5f;
 
     [Header("Settings")]
-    [SerializeField] private Vector2 offset = new Vector2(25f, 25f); // Offset away from the piece
+    [SerializeField] private Vector2 offset = new Vector2(25f, 25f); // Offset away
 
     void Awake() {
         if (Instance == null) Instance = this;

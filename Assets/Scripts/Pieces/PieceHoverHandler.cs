@@ -19,7 +19,8 @@ public class PieceHoverHandler : MonoBehaviour {
     }
 
     void Update() {
-        // Cast a ray from the mouse position into the 2D world
+        //if (TooltipManager.Instance.panelObject.activeSelf) return; // To prevent more than one showing up
+
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
         bool hitThisPiece = (hit.collider != null && hit.collider.gameObject == gameObject);
@@ -78,7 +79,6 @@ public class PieceHoverHandler : MonoBehaviour {
         piece.GetComponent<SpriteRenderer>().material.color = origColor;
         piece.transform.localScale = origScale;
     }
-
 
     string buildPieceContent(Piece piece) {
         string s = "";

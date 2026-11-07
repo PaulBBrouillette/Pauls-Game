@@ -23,6 +23,7 @@ public class CardData : ScriptableObject {
     public float costMultiplier; // 1.0-2.0 Rank One, 2.1-3.2 Rank Two, 3.3-4.0 Rank Three
     public float effectAmount; // Amount if this card adds things, such as extra turns
     public Rank rank;
+    public string description;
 
     public void PlayCard(Player owner, Player targetOwner, Piece targetPiece, Piece secondPiece, Tile targetTile, Tile secondTile) {
         foreach (CardAction action in actions) {

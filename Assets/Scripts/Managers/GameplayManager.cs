@@ -191,13 +191,12 @@ public class GameplayManager : MonoBehaviour {
                     
                 }
                 
-
                 // Transition to Move if we grab a piece
                 if (InputManager.Controls.Player.Select.WasPressedThisFrame() && TryGrabPiece(info)) {
-                if (currentMovingPiece != null) {
-                    TogglePieceColliders(false);
-                }
-                SetPhase(TurnPhase.MovePiece);
+                    if (currentMovingPiece != null) {
+                        TogglePieceColliders(false);
+                    }
+                    SetPhase(TurnPhase.MovePiece);
                 }
                 break;
 
@@ -485,6 +484,9 @@ public class GameplayManager : MonoBehaviour {
         selectedPieceToBuy = p;
         selectedPieceIndex = index;
         SetPhase(TurnPhase.PlacePiece);
+        if (TooltipManager.Instance != null) {
+            TooltipManager.Instance.HideTooltip();
+        }
     }
 
     /// <summary>
@@ -497,6 +499,9 @@ public class GameplayManager : MonoBehaviour {
         selectedCardIndex = index;
         Debug.Log($"You can place this card on a {p.targetType}");
         SetPhase(TurnPhase.ChooseCardTarget);
+        if (TooltipManager.Instance != null) {
+            TooltipManager.Instance.HideTooltip();
+        }
     }
 
     /// <summary>

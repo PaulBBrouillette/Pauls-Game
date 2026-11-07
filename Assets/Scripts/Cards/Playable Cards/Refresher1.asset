@@ -26,11 +26,10 @@ MonoBehaviour:
   costMultiplier: 1.85
   effectAmount: 0.3
   rank: 0
+  description: Restores 30% of this piece's maximum health
   references:
     version: 2
     RefIds:
     - rid: 537194450897600512
       type: {class: GiveHealthToPiecesOnTile, ns: , asm: Assembly-CSharp}
-      data:
-        duration: -1
-        existsUntilDestroyed: 0
+      data: 
