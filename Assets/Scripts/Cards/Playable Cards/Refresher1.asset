@@ -22,7 +22,7 @@ MonoBehaviour:
   existsUntilDestroyed: 0
   id: 
   shopIcon: {fileID: 0}
-  cost: 19
+  cost: 23
   costMultiplier: 1.85
   effectAmount: 0.3
   rank: 0

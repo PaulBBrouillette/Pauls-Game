@@ -57,8 +57,6 @@ public class StockHoverHandler : MonoBehaviour {
             hit = true;
         }
 
-        Debug.Log("Hit: " + hit + " | IsHovered: " + isHovered);
-
         if (hit && !isHovered) {
             isHovered = true;
             StartHoverEffect();

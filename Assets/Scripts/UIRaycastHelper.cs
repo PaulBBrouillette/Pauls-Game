@@ -32,7 +32,7 @@ public class UIRaycastHelper : MonoBehaviour {
                         hoverPieceDisplay = true;
                     }
                 }
-                Debug.Log("Hovering/Hit UI Element: " + result.gameObject.name);
+                //Debug.Log("Hovering/Hit UI Element: " + result.gameObject.name);
                 break;
             }
             else if (result.gameObject.CompareTag("CardDisplay")) {
@@ -46,7 +46,7 @@ public class UIRaycastHelper : MonoBehaviour {
                         hoverCardDisplay = true;
                     }
                 }
-                Debug.Log("Hovering/Hit UI Element: " + result.gameObject.name);
+                //Debug.Log("Hovering/Hit UI Element: " + result.gameObject.name);
                 break;
             }
             else {

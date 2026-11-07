@@ -196,6 +196,9 @@ public class GameplayManager : MonoBehaviour {
                     if (currentMovingPiece != null) {
                         TogglePieceColliders(false);
                     }
+                    ClosePieceStock();
+                    CloseCardStock();
+                    DisableMainButtons();
                     SetPhase(TurnPhase.MovePiece);
                 }
                 break;
@@ -204,14 +207,21 @@ public class GameplayManager : MonoBehaviour {
                 break;
 
             case TurnPhase.PlacePiece:
+                DisableShop();
+                CloseCardStock();
+                ClosePieceStock();
                 info = GetPointerInfo();
                 HandlePlacementGhost(info);
                 // Right click to cancel
                 if (InputManager.Controls.Player.Unselect.triggered) {
                     SetPhase(TurnPhase.Wait);
+                    EnableShop();
+                    EnableMainButtons();
                 }
                 if (InputManager.Controls.Player.Select.triggered && info.tile != null && !info.isOccupied && info.tile.team == currentPlayerScript.team) {
                     PlacePiece(info.tile, info.direction, info.isTileA, info.side);
+                    EnableShop();
+                    EnableMainButtons();
                 }
                 break;
 
@@ -481,6 +491,7 @@ public class GameplayManager : MonoBehaviour {
     public void ChoosePieceToPlace(PieceData p, int index) {
         CloseCardStock();
         ClosePieceStock();
+        DisableMainButtons();
         selectedPieceToBuy = p;
         selectedPieceIndex = index;
         SetPhase(TurnPhase.PlacePiece);
@@ -495,6 +506,7 @@ public class GameplayManager : MonoBehaviour {
     public void ChooseCardToPlace(CardData p, int index) {
         CloseCardStock();
         ClosePieceStock();
+        DisableMainButtons();
         selectedCardToBuy = p;
         selectedCardIndex = index;
         Debug.Log($"You can place this card on a {p.targetType}");
@@ -1504,28 +1516,32 @@ public class GameplayManager : MonoBehaviour {
         SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         cardStockObject.SetActive(!cardStockObject.activeSelf);
         if (cardStockObject.activeSelf) {
-            TogglePieceColliders(false);
+            //TogglePieceColliders(false);
         }
+        /*
         else {
             // Also check that piece stock is open, if it is, don't activate colliders
             if (!pieceStockObject.activeSelf) {
                 TogglePieceColliders(true);
             }
         }
+        */
     }
 
     public void TogglePieceStock() {
         SoundManager.Instance.PlaySoundByType(SoundType.UI_SELECT);
         pieceStockObject.SetActive(!pieceStockObject.activeSelf);
         if (pieceStockObject.activeSelf) {
-            TogglePieceColliders(false);
+            //TogglePieceColliders(false);
         }
+        /*
         else {
             // Also check that card stock is open, if it is, don't activate colliders
             if (!cardStockObject.activeSelf) {
                 TogglePieceColliders(true);
             }
         }
+        */
     }
 
     void CloseCardStock() {
@@ -1545,6 +1561,16 @@ public class GameplayManager : MonoBehaviour {
     }
 
     void EnableShop() {
+        shopButton.enabled = true;
+    }
+
+    void DisableMainButtons() {
+        shopButton.enabled = false;
+        capitulateButton.enabled = false;
+    }
+
+    void EnableMainButtons() {
+        capitulateButton.enabled = true;
         shopButton.enabled = true;
     }
 
